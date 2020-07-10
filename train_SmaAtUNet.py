@@ -9,6 +9,7 @@ from utils import dataset_VOC
 import time
 from tqdm import tqdm
 from metric import iou
+import os
 
 
 def get_lr(optimizer):
@@ -60,6 +61,7 @@ def fit(epochs, model, loss_func, opt, train_dl, valid_dl,
 
         # Save the model with the best mean IoU
         if mean_iou > best_mIoU:
+            os.makedirs("checkpoints", exist_ok=True)
             torch.save({
                 'model': model,
                 'epoch': epoch,
@@ -68,7 +70,7 @@ def fit(epochs, model, loss_func, opt, train_dl, valid_dl,
                 'val_loss': val_loss,
                 'train_loss': train_loss,
                 'mIOU': mean_iou,
-            }, f"models/checkpoints/best_mIoU_model_{model.__class__.__name__}.pt")
+            }, f"checkpoints/best_mIoU_model_{model.__class__.__name__}.pt")
             best_mIoU = mean_iou
             earlystopping_counter = 0
 
@@ -103,7 +105,7 @@ def fit(epochs, model, loss_func, opt, train_dl, valid_dl,
                     'val_loss': val_loss,
                     'train_loss': train_loss,
                     'mIOU': mean_iou,
-                }, f"models/checkpoints/model_{model.__class__.__name__}_epoch_{epoch}.pt")
+                }, f"checkpoints/model_{model.__class__.__name__}_epoch_{epoch}.pt")
         if lr_scheduler is not None:
             lr_scheduler.step(mean_iou)
 
