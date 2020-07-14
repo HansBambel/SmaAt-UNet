@@ -12,6 +12,12 @@ In order to use PL we created the model [UNetDS_Attention](models/unet_precip_re
 ### Training
 An example [training script](train_SmaAtUNet.py) is given for a classification task (PascalVOC).
 
+For training on the precipitation task we used the [train_precip_lightning.py](train_precip_lightning.py) file. 
+
+### Precipitation dataset
+If you are interested in the dataset that we used please write me an e-mail: k.trebing@student.maastrichtuniversity.nl
+
+The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size.
 
 ### Citation   
 ```
