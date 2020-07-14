@@ -15,10 +15,15 @@ An example [training script](train_SmaAtUNet.py) is given for a classification t
 For training on the precipitation task we used the [train_precip_lightning.py](train_precip_lightning.py) file. 
 
 ### Precipitation dataset
+The dataset consists of precipitation maps in 5-minute intervals from 2016-2019 resulting in about 420,000 images.
+
+The dataset is based on radar precipitation maps from the [The Royal Netherlands Meteorological Institute (KNMI)](https://www.knmi.nl/over-het-knmi/about).
+The original images were cropped as can be seen in the example below:
+![Precip cutout](Precipitation%20map%20Cutout.png)
+
 If you are interested in the dataset that we used please write me an e-mail: k.trebing@student.maastrichtuniversity.nl
 
 The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size.
-
 ### Citation   
 ```
 @article{trebing2020SmaAt,
