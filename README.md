@@ -3,7 +3,7 @@ Code for the Paper "SmaAt-UNet: Precipitation Nowcasting using a Small Attention
 
 ![SmaAt-UNet](SmaAt-UNet.png)
 
-The proposed SmaAt-UNet can be found in the model-folder under [SmaAt_UNet](models/SmaAt_UNet.py). 
+The proposed SmaAt-UNet can be found in the model-folder under [SmaAt_UNet](models/SmaAt_UNet.py).
 
 ---
 For the paper we used the [Pytorch-Lightning](https://github.com/PyTorchLightning/pytorch-lightning) -module (PL) which simplifies the training process and allows easy additions of loggers and checkpoint creations.
