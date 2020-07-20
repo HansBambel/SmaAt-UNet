@@ -26,9 +26,12 @@ If you are interested in the dataset that we used please write me an e-mail: k.t
 The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size.
 ### Citation   
 ```
-@article{trebing2020SmaAt,
-  title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture},
-  author={Trebing, Kevin and Mehrkanoon, Siamak},
-  year={2020}
+@misc{trebing2020smaatunet,
+    title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture},
+    author={Kevin Trebing and Siamak Mehrkanoon},
+    year={2020},
+    eprint={2007.04417},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
 }
 ```   
