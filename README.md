@@ -24,6 +24,8 @@ The original images were cropped as can be seen in the example below:
 If you are interested in the dataset that we used please write an e-mail to: k.trebing@student.maastrichtuniversity.nl and siamak.mehrkanoon@maastrichtuniversity.nl
 
 The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size.
+
+The dataset is already normalized using a [Min-Max normalization](https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)). In order to revert this you need to multiply the images by 47.83; this results in the images showing the mm/5min.
 ### Citation   
 ```
 @misc{trebing2020smaatunet,
