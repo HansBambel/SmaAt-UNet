@@ -3,7 +3,7 @@ Code for the Paper "SmaAt-UNet: Precipitation Nowcasting using a Small Attention
 
 ![SmaAt-UNet](SmaAt-UNet.png)
 
-The proposed SmaAt-UNet can be found in the model-folder under [SmaAt_UNet](models/SmaAt_UNet.py). 
+The proposed SmaAt-UNet can be found in the model-folder under [SmaAt_UNet](models/SmaAt_UNet.py).
 
 ---
 For the paper we used the [Pytorch-Lightning](https://github.com/PyTorchLightning/pytorch-lightning) -module (PL) which simplifies the training process and allows easy additions of loggers and checkpoint creations.
@@ -21,14 +21,19 @@ The dataset is based on radar precipitation maps from the [The Royal Netherlands
 The original images were cropped as can be seen in the example below:
 ![Precip cutout](Precipitation%20map%20Cutout.png)
 
-If you are interested in the dataset that we used please write me an e-mail: k.trebing@student.maastrichtuniversity.nl
+If you are interested in the dataset that we used please write an e-mail to: k.trebing@student.maastrichtuniversity.nl and siamak.mehrkanoon@maastrichtuniversity.nl
 
 The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size.
+
+The dataset is already normalized using a [Min-Max normalization](https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)). In order to revert this you need to multiply the images by 47.83; this results in the images showing the mm/5min.
 ### Citation   
 ```
-@article{trebing2020SmaAt,
-  title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture},
-  author={Trebing, Kevin and Mehrkanoon, Siamak},
-  year={2020}
+@misc{trebing2020smaatunet,
+    title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture},
+    author={Kevin Trebing and Siamak Mehrkanoon},
+    year={2020},
+    eprint={2007.04417},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG}
 }
 ```   
