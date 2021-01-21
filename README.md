@@ -21,9 +21,9 @@ The dataset is based on radar precipitation maps from the [The Royal Netherlands
 The original images were cropped as can be seen in the example below:
 ![Precip cutout](Precipitation%20map%20Cutout.png)
 
-If you are interested in the dataset that we used please write an e-mail to: k.trebing@student.maastrichtuniversity.nl and siamak.mehrkanoon@maastrichtuniversity.nl
+If you are interested in the dataset that we used please write an e-mail to: k.trebing@alumni.maastrichtuniversity.nl and siamak.mehrkanoon@maastrichtuniversity.nl
 
-The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size.
+The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size. Use the [create_dataset.py](create_datasets.py) to create the two datasets used from the original dataset.
 
 The dataset is already normalized using a [Min-Max normalization](https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)). In order to revert this you need to multiply the images by 47.83; this results in the images showing the mm/5min.
 ### Citation   
