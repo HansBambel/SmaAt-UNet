@@ -28,12 +28,12 @@ The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size. Use the 
 The dataset is already normalized using a [Min-Max normalization](https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)). In order to revert this you need to multiply the images by 47.83; this results in the images showing the mm/5min.
 ### Citation   
 ```
-@misc{trebing2020smaatunet,
-    title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture},
-    author={Kevin Trebing and Siamak Mehrkanoon},
-    year={2020},
-    eprint={2007.04417},
-    archivePrefix={arXiv},
-    primaryClass={cs.LG}
+@misc{trebing2021smaatunet,
+      title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture}, 
+      author={Kevin Trebing and Tomasz Stanczyk and Siamak Mehrkanoon},
+      year={2021},
+      eprint={2007.04417},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
 }
 ```   
