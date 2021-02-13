@@ -30,7 +30,7 @@ The dataset is already normalized using a [Min-Max normalization](https://en.wik
 ```
 @misc{trebing2021smaatunet,
       title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture}, 
-      author={Kevin Trebing and Tomasz Stanczyk and Siamak Mehrkanoon},
+      author={Kevin Trebing and Tomasz Stańczyk and Siamak Mehrkanoon},
       year={2021},
       eprint={2007.04417},
       archivePrefix={arXiv},
