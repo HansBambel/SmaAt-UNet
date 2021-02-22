@@ -1,5 +1,5 @@
 # SmaAt-UNet
-Code for the Paper "SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture" [Arxiv-link](https://arxiv.org/abs/2007.04417)
+Code for the Paper "SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture" [Arxiv-link](https://arxiv.org/abs/2007.04417), [Elsevier-link](https://www.sciencedirect.com/science/article/pii/S0167865521000556?via%3Dihub)
 
 ![SmaAt-UNet](SmaAt-UNet.png)
 
@@ -28,12 +28,15 @@ The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size. Use the 
 The dataset is already normalized using a [Min-Max normalization](https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)). In order to revert this you need to multiply the images by 47.83; this results in the images showing the mm/5min.
 ### Citation   
 ```
-@misc{trebing2021smaatunet,
-      title={SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture}, 
-      author={Kevin Trebing and Tomasz Stańczyk and Siamak Mehrkanoon},
-      year={2021},
-      eprint={2007.04417},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@article{TREBING2021,
+title = {SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture},
+journal = {Pattern Recognition Letters},
+year = {2021},
+issn = {0167-8655},
+doi = {https://doi.org/10.1016/j.patrec.2021.01.036},
+url = {https://www.sciencedirect.com/science/article/pii/S0167865521000556},
+author = {Kevin Trebing and Tomasz Staǹczyk and Siamak Mehrkanoon},
+keywords = {Domain adaptation, neural networks, kernel methods, coupling regularization},
+abstract = {Weather forecasting is dominated by numerical weather prediction that tries to model accurately the physical properties of the atmosphere. A downside of numerical weather prediction is that it is lacking the ability for short-term forecasts using the latest available information. By using a data-driven neural network approach we show that it is possible to produce an accurate precipitation nowcast. To this end, we propose SmaAt-UNet, an efficient convolutional neural networks-based on the well known UNet architecture equipped with attention modules and depthwise-separable convolutions. We evaluate our approaches on a real-life datasets using precipitation maps from the region of the Netherlands and binary images of cloud coverage of France. The experimental results show that in terms of prediction performance, the proposed model is comparable to other examined models while only using a quarter of the trainable parameters.}
 }
 ```   
