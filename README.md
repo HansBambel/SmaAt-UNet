@@ -21,7 +21,7 @@ The dataset is based on radar precipitation maps from the [The Royal Netherlands
 The original images were cropped as can be seen in the example below:
 ![Precip cutout](Precipitation%20map%20Cutout.png)
 
-If you are interested in the dataset that we used please write an e-mail to: kevin.trebing@gmx.net and s.mehrkanoon@uu.nl
+If you are interested in the dataset that we used please write an e-mail to: k.trebing@alumni.maastrichtuniversity.nl and s.mehrkanoon@uu.nl
 
 The 50% dataset has 4GB in size and the 20% dataset has 16.5GB in size. Use the [create_dataset.py](create_datasets.py) to create the two datasets used from the original dataset.
 
