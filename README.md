@@ -13,6 +13,11 @@ In order to use PL we created the model [UNetDS_Attention](models/unet_precip_re
 An example [training script](train_SmaAtUNet.py) is given for a classification task (PascalVOC).
 
 For training on the precipitation task we used the [train_precip_lightning.py](train_precip_lightning.py) file. 
+The training will place a checkpoint file for every model in the `default_save_path` `lightning/precip_regression`. After finishing training place the best models (probably the ones with the lowest validation loss) that you want to compare in another folder in `checkpoints/comparison`.
+The [test_precip_lightning.py](test_precip_lightning.py) will use all models in that folder and calculate the test-losses for the models.
+
+### Plots
+Example code for creating similar plots as in the paper can be found in [plot_examples.ipynb](plot_examples.ipynb).
 
 ### Precipitation dataset
 The dataset consists of precipitation maps in 5-minute intervals from 2016-2019 resulting in about 420,000 images.
