@@ -6,39 +6,8 @@ import os
 import pickle
 from tqdm import tqdm
 
-from utils import data_loader_precip, dataset_precip, data_loader_precip
+from utils import data_loader_precip, dataset_precip, data_loader_precip, model_classes
 from models import unet_precip_regression_lightning as unet_regr
-
-
-def get_model_class(model_file):
-    # This is for some nice plotting
-    if "UNet_Attention" in model_file:
-        model_name = "UNet Attention"
-        model = unet_regr.UNet_Attention
-    elif "UNetDS_Attention_4kpl" in model_file:
-        model_name = "UNetDS Attention with 4kpl"
-        model = unet_regr.UNetDS_Attention
-    elif "BackbonedUNet" in model_file:
-        model_name = "ResNet with UNet"
-        model = unet_regr.BackbonedUNet
-    elif "UNetDS_Attention_1kpl" in model_file:
-        model_name = "UNetDS Attention with 1kpl"
-        model = unet_regr.UNetDS_Attention
-    elif "UNetDS_Attention_4CBAMs" in model_file:
-        model_name = "UNetDS Attention 4CBAMs"
-        model = unet_regr.UNetDS_Attention_4CBAMs
-    elif "UNetDS_Attention" in model_file:
-        model_name = "SmaAt-UNet"
-        model = unet_regr.UNetDS_Attention
-    elif "UNetDS" in model_file:
-        model_name = "UNetDS"
-        model = unet_regr.UNetDS
-    elif "UNet" in model_file:
-        model_name = "UNet"
-        model = unet_regr.UNet
-    else:
-        raise NotImplementedError(f"Model not found")
-    return model, model_name
 
 
 def get_model_loss(model, test_dl, loss="mse", denormalize=True):
@@ -149,7 +118,7 @@ def get_model_losses(model_folder, data_file, loss, denormalize):
 
     # load the models
     for model_file in tqdm(models, desc="Models", leave=True):
-        model, model_name = get_model_class(model_file)
+        model, model_name = model_classes.get_model_class(model_file)
         model = model.load_from_checkpoint(f"{model_folder}/{model_file}")
         model_loss = get_model_loss(model, test_dl, loss, denormalize=denormalize)
 
