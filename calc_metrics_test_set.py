@@ -20,8 +20,6 @@ def get_metrics_from_model(model, test_dl, threshold=0.5):
         total_tn = 0
         total_fn = 0
         for x, y_true in tqdm(test_dl, leave=False):
-            x = x.to("cuda")
-            y_true = y_true.to("cuda")
             y_pred = model(x)
             # denormalize and convert from mm/5min to mm/h
             y_pred_adj = y_pred.squeeze() * 47.83 * 12
@@ -40,26 +38,26 @@ def get_metrics_from_model(model, test_dl, threshold=0.5):
         recall = total_tp / (total_tp + total_fn)
         accuracy = (total_tp + total_tn) / (total_tp + total_tn + total_fp + total_fn)
         f1 = 2 * precision * recall / (precision + recall)
-        csi = total_tp/(total_tp+total_fn+total_fp)
-        far = total_fp/(total_tp+total_fp)
-        hss = ((total_tp*total_tn)-(total_fn*total_fp))/((total_tp+total_fn)*(total_fn+total_tn)+(total_tp+total_fp)*(total_fp+total_tn))
+        csi = total_tp / (total_tp + total_fn + total_fp)
+        far = total_fp / (total_tp + total_fp)
+        hss = ((total_tp * total_tn) - (total_fn * total_fp)) / (
+            (total_tp + total_fn) * (total_fn + total_tn) + (total_tp + total_fp) * (total_fp + total_tn)
+        )
 
     return precision, recall, accuracy, f1, csi, far, hss
 
-if __name__ == '__main__':
 
+if __name__ == "__main__":
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
-                in_file="data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5",
-                num_input_images=12,
-                num_output_images=6, train=False)
+        in_file="data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5",
+        num_input_images=12,
+        num_output_images=6,
+        train=False,
+    )
 
     test_dl = data_loader = torch.utils.data.DataLoader(
-        dataset,
-        batch_size=1,
-        shuffle=False,
-        num_workers=0,
-        pin_memory=True
-        )
+        dataset, batch_size=1, shuffle=False, num_workers=0, pin_memory=True
+    )
 
     model_folder = "lightning/precip_regression/comparison"
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
@@ -72,16 +70,18 @@ if __name__ == '__main__':
     for model_file in tqdm(models, desc="Models", leave=True):
         model, model_name = model_classes.get_model_class(model_file)
         model = model.load_from_checkpoint(f"{model_folder}/{model_file}")
-        model.to("cuda").eval()
+        model.eval()
 
         precision, recall, accuracy, f1, csi, far, hss = get_metrics_from_model(model, test_dl, threshold)
-        model_metrics[model_name] = {"Precision": precision,
-                                     "Recall": recall,
-                                     "Accuracy": accuracy,
-                                     "F1": f1,
-                                     "CSI": csi,
-                                     "FAR": far,
-                                     "HSS": hss}
+        model_metrics[model_name] = {
+            "Precision": precision,
+            "Recall": recall,
+            "Accuracy": accuracy,
+            "F1": f1,
+            "CSI": csi,
+            "FAR": far,
+            "HSS": hss,
+        }
         print(model_name, model_metrics[model_name])
-    with open(model_folder+f"/model_metrics_{threshold}mmh.pkl", "wb") as f:
+    with open(model_folder + f"/model_metrics_{threshold}mmh.pkl", "wb") as f:
         pickle.dump(model_metrics, f)

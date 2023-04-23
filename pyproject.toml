@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "smaat-unet"
+version = "0.1.0"
+description = "Code for the paper `SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture`"
+authors = ["Kevin Trebing <Kevin.Trebing@gmx.net>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">3.9.7,<4.0"
+tqdm = "^4.65.0"
+torch = "^2.0.0"
+torchvision = "^0.15.1"
+torchsummary = "^1.5.1"
+h5py = "^3.8.0"
+fastapi = ">=0.80"
+lightning = {extras = ["extra"], version = "^2.0.1.post0"}
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ruff = "^0.0.262"
+mypy = "^1.2.0"
+pre-commit = "^3.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+line-length = 120

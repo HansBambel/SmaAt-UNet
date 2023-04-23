@@ -71,35 +71,54 @@ def decode_segmap(label_mask, plot=False):
 
 
 class VOCSegmentation(Dataset):
-    CLASS_NAMES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
-                   'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable',
-                   'dog', 'horse', 'motorbike', 'person', 'potted-plant',
-                   'sheep', 'sofa', 'train', 'tv/monitor']
+    CLASS_NAMES = [
+        "background",
+        "aeroplane",
+        "bicycle",
+        "bird",
+        "boat",
+        "bottle",
+        "bus",
+        "car",
+        "cat",
+        "chair",
+        "cow",
+        "diningtable",
+        "dog",
+        "horse",
+        "motorbike",
+        "person",
+        "potted-plant",
+        "sheep",
+        "sofa",
+        "train",
+        "tv/monitor",
+    ]
 
-    def __init__(self, root, image_set='train', transformations=None, augmentations=False):
+    def __init__(self, root, image_set="train", transformations=None, augmentations=False):
         super(VOCSegmentation, self).__init__()
         assert image_set in ["train", "val", "trainval"]
-        base_dir = os.path.join('VOCdevkit', 'VOC2012')
+        base_dir = os.path.join("VOCdevkit", "VOC2012")
 
         voc_root = os.path.join(root, base_dir)
-        image_dir = os.path.join(voc_root, 'JPEGImages')
-        mask_dir = os.path.join(voc_root, 'SegmentationClass')
+        image_dir = os.path.join(voc_root, "JPEGImages")
+        mask_dir = os.path.join(voc_root, "SegmentationClass")
 
-        splits_dir = os.path.join(voc_root, 'ImageSets/Segmentation')
+        splits_dir = os.path.join(voc_root, "ImageSets/Segmentation")
 
-        split_f = os.path.join(splits_dir, image_set.rstrip('\n') + '.txt')
+        split_f = os.path.join(splits_dir, image_set.rstrip("\n") + ".txt")
         with open(os.path.join(split_f), "r") as f:
             file_names = [x.strip() for x in f.readlines()]
 
         self.images = [os.path.join(image_dir, x + ".jpg") for x in file_names]
         self.masks = [os.path.join(mask_dir, x + ".png") for x in file_names]
-        assert (len(self.images) == len(self.masks))
+        assert len(self.images) == len(self.masks)
 
         self.transformations = transformations
         self.augmentations = augmentations
 
     def __getitem__(self, index):
-        img = Image.open(self.images[index]).convert('RGB')
+        img = Image.open(self.images[index]).convert("RGB")
         target = Image.open(self.masks[index])
 
         if self.transformations is not None:
@@ -110,11 +129,15 @@ class VOCSegmentation(Dataset):
             img, target = self.apply_augmentations(img, target)
 
         # Convert the RGB image to a tensor
-        toTensorTransform = transforms.Compose([
-                            transforms.ToTensor(),
-                            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                                 std=[0.229, 0.224, 0.225], )
-            ])
+        toTensorTransform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225],
+                ),
+            ]
+        )
         img = toTensorTransform(img)
         # Convert target to long tensor
         target = torch.from_numpy(np.array(target)).long()

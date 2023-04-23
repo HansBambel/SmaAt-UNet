@@ -1,8 +1,6 @@
-import argparse
 from models.unet_parts import *
 from models.unet_parts_depthwise_separable import DoubleConvDS, UpDS, DownDS
 from models.layers import CBAM
-import pytorch_lightning as pl
 from models.regression_lightning import Precip_regression_base
 
 
@@ -208,27 +206,3 @@ class UNetDS_Attention_4CBAMs(Precip_regression_base):
         x = self.up4(x, x1Att)
         logits = self.outc(x)
         return logits
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser = Precip_regression_base.add_model_specific_args(parser)
-    parser = pl.Trainer.add_argparse_args(parser)
-
-    parser.add_argument('--dataset_folder',
-                        default='../data/precipitation/RAD_NL25_RAC_5min_train_test_2016-2019.h5', type=str)
-    parser.add_argument('--batch_size', type=int, default=8)
-    parser.add_argument('--learning_rate', type=float, default=0.001)
-    parser.add_argument('--epochs', type=int, default=150)
-
-    args = parser.parse_args()
-
-    net = UNetDS_Attention(hparams=args)
-
-    trainer = pl.Trainer(gpus=1,
-                         fast_dev_run=True,
-                         weights_summary=None,
-                         default_save_path="../lightning/precip",
-                         max_epochs=args.epochs)
-    trainer.fit(net)

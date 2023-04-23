@@ -12,7 +12,6 @@ from models import unet_precip_regression_lightning as unet_regr
 
 def get_model_loss(model, test_dl, loss="mse", denormalize=True):
     model.eval()  # or model.freeze()?
-    model.to("cuda")
     if loss.lower() == "mse":
         loss_func = nn.functional.mse_loss
     elif loss.lower() == "mae":
@@ -25,11 +24,10 @@ def get_model_loss(model, test_dl, loss="mse", denormalize=True):
         loss_model = 0.0
         for x, y_true in tqdm(test_dl, leave=False):
             x = x.to("cuda")
-            y_true = y_true.to("cuda")
             y_pred = model(x)
             loss_model += loss_func(y_pred.squeeze() * factor, y_true * factor, reduction="sum") / y_true.size(0)
         loss_model /= len(test_dl)
-    return np.array(loss_model.cpu())
+    return np.array(loss_model)
 
 
 def get_persistence_metrics(test_dl, loss="mse", denormalize=True):
@@ -76,23 +74,18 @@ def get_persistence_metrics(test_dl, loss="mse", denormalize=True):
 
 def print_persistent_metrics(data_file):
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
-        in_file=data_file,
-        num_input_images=12,
-        num_output_images=6, train=False)
-
-    test_dl = torch.utils.data.DataLoader(
-        dataset,
-        batch_size=1,
-        shuffle=False,
-        num_workers=0,
-        pin_memory=True
+        in_file=data_file, num_input_images=12, num_output_images=6, train=False
     )
+
+    test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, pin_memory=True)
     # persistence_loss = get_persistence_loss(test_dl, loss="mse", denormalize=True)
     # print(persistence_loss)
-    loss_model, precision, recall, accuracy, f1, csi, far = get_persistence_metrics(test_dl, loss="mse",
-                                                                                    denormalize=True)
+    loss_model, precision, recall, accuracy, f1, csi, far = get_persistence_metrics(
+        test_dl, loss="mse", denormalize=True
+    )
     print(
-        f"Loss Persistence (MSE): {loss_model}, precision: {precision}, recall: {recall}, accuracy: {accuracy}, f1: {f1}, csi: {csi}, far: {far}")
+        f"Loss Persistence (MSE): {loss_model}, precision: {precision}, recall: {recall}, accuracy: {accuracy}, f1: {f1}, csi: {csi}, far: {far}"
+    )
     return loss_model
 
 
@@ -104,17 +97,10 @@ def get_model_losses(model_folder, data_file, loss, denormalize):
 
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
-        in_file=data_file,
-        num_input_images=12,
-        num_output_images=6, train=False)
-
-    test_dl = torch.utils.data.DataLoader(
-        dataset,
-        batch_size=6,
-        shuffle=False,
-        num_workers=0,
-        pin_memory=True
+        in_file=data_file, num_input_images=12, num_output_images=6, train=False
     )
+
+    test_dl = torch.utils.data.DataLoader(dataset, batch_size=6, shuffle=False, num_workers=0, pin_memory=True)
 
     # load the models
     for model_file in tqdm(models, desc="Models", leave=True):
@@ -133,19 +119,19 @@ def plot_losses(test_losses, loss):
     # for name in names:
     plt.bar(names, values)
     plt.xticks(rotation=45)
-    plt.xlabel('Models')
-    plt.ylabel(f'{loss.upper()} on test set')
+    plt.xlabel("Models")
+    plt.ylabel(f"{loss.upper()} on test set")
     plt.title("Comparison of different models")
 
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     loss = "mse"
     denormalize = True
     # Models that are compared should be in this folder (the ones with the lowest validation error)
     model_folder = "checkpoints/comparison"
-    data_file = 'data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5'
+    data_file = "data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
 
     # This changes whether to load or to run the model loss calculation
     load = False
@@ -157,11 +143,12 @@ if __name__ == '__main__':
     else:
         test_losses = get_model_losses(model_folder, data_file, loss, denormalize)
         # Save losses
-        with open(model_folder + f"/model_losses_{loss.upper()}_{f'de' if denormalize else ''}normalized.pkl",
-                  "wb") as f:
+        with open(
+            model_folder + f"/model_losses_{loss.upper()}_{f'de' if denormalize else ''}normalized.pkl",
+            "wb",
+        ) as f:
             pickle.dump(test_losses, f)
 
     # Plot results
     print(list(test_losses.keys()))
     plot_losses(test_losses, loss)
-

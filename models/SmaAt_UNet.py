@@ -5,7 +5,14 @@ from models.layers import CBAM
 
 
 class SmaAt_UNet(nn.Module):
-    def __init__(self, n_channels, n_classes, kernels_per_layer=2, bilinear=True, reduction_ratio=16):
+    def __init__(
+        self,
+        n_channels,
+        n_classes,
+        kernels_per_layer=2,
+        bilinear=True,
+        reduction_ratio=16,
+    ):
         super(SmaAt_UNet, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
