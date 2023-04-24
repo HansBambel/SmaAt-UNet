@@ -7,9 +7,9 @@ from models.regression_lightning import Precip_regression_base
 class UNet(Precip_regression_base):
     def __init__(self, hparams):
         super(UNet, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
 
         self.inc = DoubleConv(self.n_channels, 64)
         self.down1 = Down(64, 128)
@@ -41,10 +41,10 @@ class UNet(Precip_regression_base):
 class UNet_Attention(Precip_regression_base):
     def __init__(self, hparams):
         super(UNet_Attention, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        reduction_ratio = hparams.reduction_ratio
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        reduction_ratio = self.hparams.reduction_ratio
 
         self.inc = DoubleConv(self.n_channels, 64)
         self.cbam1 = CBAM(64, reduction_ratio=reduction_ratio)
@@ -86,10 +86,10 @@ class UNet_Attention(Precip_regression_base):
 class UNetDS(Precip_regression_base):
     def __init__(self, hparams):
         super(UNetDS, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        kernels_per_layer = hparams.kernels_per_layer
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        kernels_per_layer = self.hparams.kernels_per_layer
 
         self.inc = DoubleConvDS(self.n_channels, 64, kernels_per_layer=kernels_per_layer)
         self.down1 = DownDS(64, 128, kernels_per_layer=kernels_per_layer)
@@ -121,11 +121,11 @@ class UNetDS(Precip_regression_base):
 class UNetDS_Attention(Precip_regression_base):
     def __init__(self, hparams):
         super(UNetDS_Attention, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        reduction_ratio = hparams.reduction_ratio
-        kernels_per_layer = hparams.kernels_per_layer
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        reduction_ratio = self.hparams.reduction_ratio
+        kernels_per_layer = self.hparams.kernels_per_layer
 
         self.inc = DoubleConvDS(self.n_channels, 64, kernels_per_layer=kernels_per_layer)
         self.cbam1 = CBAM(64, reduction_ratio=reduction_ratio)
@@ -167,11 +167,11 @@ class UNetDS_Attention(Precip_regression_base):
 class UNetDS_Attention_4CBAMs(Precip_regression_base):
     def __init__(self, hparams):
         super(UNetDS_Attention_4CBAMs, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        reduction_ratio = hparams.reduction_ratio
-        kernels_per_layer = hparams.kernels_per_layer
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        reduction_ratio = self.hparams.reduction_ratio
+        kernels_per_layer = self.hparams.kernels_per_layer
 
         self.inc = DoubleConvDS(self.n_channels, 64, kernels_per_layer=kernels_per_layer)
         self.cbam1 = CBAM(64, reduction_ratio=reduction_ratio)

@@ -5,9 +5,10 @@ import numpy as np
 import os
 import pickle
 from tqdm import tqdm
+import lightning.pytorch as pl
 
-from utils import data_loader_precip, dataset_precip, data_loader_precip, model_classes
-from models import unet_precip_regression_lightning as unet_regr
+from utils import dataset_precip, model_classes
+
 
 
 def get_model_loss(model, test_dl, loss="mse", denormalize=True):
@@ -30,11 +31,8 @@ def get_model_loss(model, test_dl, loss="mse", denormalize=True):
     return np.array(loss_model)
 
 
-def get_persistence_metrics(test_dl, loss="mse", denormalize=True):
-    if loss.lower() == "mse":
-        loss_func = nn.functional.mse_loss
-    elif loss.lower() == "mae":
-        loss_func = nn.functional.l1_loss
+def get_persistence_metrics(test_dl, denormalize=True):
+    loss_func = nn.functional.mse_loss
     factor = 1
     if denormalize:
         factor = 47.83
@@ -78,10 +76,8 @@ def print_persistent_metrics(data_file):
     )
 
     test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, pin_memory=True)
-    # persistence_loss = get_persistence_loss(test_dl, loss="mse", denormalize=True)
-    # print(persistence_loss)
     loss_model, precision, recall, accuracy, f1, csi, far = get_persistence_metrics(
-        test_dl, loss="mse", denormalize=True
+        test_dl, denormalize=True
     )
     print(
         f"Loss Persistence (MSE): {loss_model}, precision: {precision}, recall: {recall}, accuracy: {accuracy}, f1: {f1}, csi: {csi}, far: {far}"
@@ -89,7 +85,7 @@ def print_persistent_metrics(data_file):
     return loss_model
 
 
-def get_model_losses(model_folder, data_file, loss, denormalize):
+def get_model_losses(model_folder, data_file):
     # Save it to a dict that can be saved (and plotted)
     test_losses = dict()
     persistence_loss = print_persistent_metrics(data_file)
@@ -100,13 +96,14 @@ def get_model_losses(model_folder, data_file, loss, denormalize):
         in_file=data_file, num_input_images=12, num_output_images=6, train=False
     )
 
-    test_dl = torch.utils.data.DataLoader(dataset, batch_size=6, shuffle=False, num_workers=0, pin_memory=True)
+    test_dl = torch.utils.data.DataLoader(dataset, batch_size=6, shuffle=False, pin_memory=True)
 
+    trainer = pl.trainer.Trainer(logger=False)
     # load the models
     for model_file in tqdm(models, desc="Models", leave=True):
         model, model_name = model_classes.get_model_class(model_file)
-        model = model.load_from_checkpoint(f"{model_folder}/{model_file}")
-        model_loss = get_model_loss(model, test_dl, loss, denormalize=denormalize)
+        loaded_model = model.load_from_checkpoint(f"{model_folder}/{model_file}")
+        model_loss = trainer.test(model=loaded_model, dataloaders=[test_dl])
 
         test_losses[model_name] = model_loss
     return test_losses
@@ -127,7 +124,6 @@ def plot_losses(test_losses, loss):
 
 
 if __name__ == "__main__":
-    loss = "mse"
     denormalize = True
     # Models that are compared should be in this folder (the ones with the lowest validation error)
     model_folder = "checkpoints/comparison"
@@ -137,18 +133,18 @@ if __name__ == "__main__":
     load = False
     if load:
         # load the losses
-        with open(f"checkpoints/comparison/model_losses_{loss.upper()}_denormalized.pkl", "rb") as f:
+        with open(f"checkpoints/comparison/model_losses_MSE_denormalized.pkl", "rb") as f:
             test_losses = pickle.load(f)
 
     else:
-        test_losses = get_model_losses(model_folder, data_file, loss, denormalize)
+        test_losses = get_model_losses(model_folder, data_file)
         # Save losses
         with open(
-            model_folder + f"/model_losses_{loss.upper()}_{f'de' if denormalize else ''}normalized.pkl",
+            model_folder + f"/model_losses_MSE_{f'de' if denormalize else ''}normalized.pkl",
             "wb",
         ) as f:
             pickle.dump(test_losses, f)
 
     # Plot results
-    print(list(test_losses.keys()))
-    plot_losses(test_losses, loss)
+    print(test_losses)
+    # plot_losses(test_losses, loss)

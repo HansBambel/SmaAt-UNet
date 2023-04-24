@@ -63,10 +63,14 @@ class UNet_base(pl.LightningModule):
         self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
+        """Calculate the loss (MSE per default) on the test set normalized and denormalized."""
         x, y = batch
         y_pred = self(x)
         loss = self.loss_func(y_pred.squeeze(), y)
-        self.log("test_loss", loss)
+        factor = 47.83
+        loss_denorm = self.loss_func(y_pred.squeeze() * factor, y * factor)
+        self.log("MSE", loss)
+        self.log("MSE_denormalized", loss_denorm)
 
 
 class Precip_regression_base(UNet_base):
