@@ -130,7 +130,7 @@ if __name__ == "__main__":
     load = False
     if load:
         # load the losses
-        with open("checkpoints/comparison/model_losses_MSE.pkl", "rb") as f:
+        with open(f"{model_folder}/model_losses_MSE.pkl", "rb") as f:
             test_losses = pickle.load(f)
 
     else:

@@ -52,11 +52,9 @@ if __name__ == "__main__":
         train=False,
     )
 
-    test_dl = data_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=1, shuffle=False, num_workers=0, pin_memory=True
-    )
+    test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, pin_memory=True)
 
-    model_folder = "lightning/precip_regression/comparison"
+    model_folder = "checkpoints/comparison"
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
 
     # go through test set and calculate acc, precision, recall and F1
