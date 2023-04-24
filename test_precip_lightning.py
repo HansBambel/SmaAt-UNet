@@ -10,7 +10,6 @@ import lightning.pytorch as pl
 from utils import dataset_precip, model_classes
 
 
-
 def get_model_loss(model, test_dl, loss="mse", denormalize=True):
     model.eval()  # or model.freeze()?
     if loss.lower() == "mse":
@@ -76,11 +75,10 @@ def print_persistent_metrics(data_file):
     )
 
     test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, pin_memory=True)
-    loss_model, precision, recall, accuracy, f1, csi, far = get_persistence_metrics(
-        test_dl, denormalize=True
-    )
+    loss_model, precision, recall, accuracy, f1, csi, far = get_persistence_metrics(test_dl, denormalize=True)
     print(
-        f"Loss Persistence (MSE): {loss_model}, precision: {precision}, recall: {recall}, accuracy: {accuracy}, f1: {f1}, csi: {csi}, far: {far}"
+        f"Loss Persistence (MSE): {loss_model}, precision: {precision}, recall: {recall}, "
+        f"accuracy: {accuracy}, f1: {f1}, csi: {csi}, far: {far}"
     )
     return loss_model
 
@@ -124,7 +122,6 @@ def plot_losses(test_losses, loss):
 
 
 if __name__ == "__main__":
-    denormalize = True
     # Models that are compared should be in this folder (the ones with the lowest validation error)
     model_folder = "checkpoints/comparison"
     data_file = "data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
@@ -133,14 +130,14 @@ if __name__ == "__main__":
     load = False
     if load:
         # load the losses
-        with open(f"checkpoints/comparison/model_losses_MSE_denormalized.pkl", "rb") as f:
+        with open("checkpoints/comparison/model_losses_MSE.pkl", "rb") as f:
             test_losses = pickle.load(f)
 
     else:
         test_losses = get_model_losses(model_folder, data_file)
         # Save losses
         with open(
-            model_folder + f"/model_losses_MSE_{f'de' if denormalize else ''}normalized.pkl",
+            model_folder + "/model_losses_MSE.pkl",
             "wb",
         ) as f:
             pickle.dump(test_losses, f)

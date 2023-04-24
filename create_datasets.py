@@ -19,7 +19,10 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
         imgSize = train_images.shape[1]
         num_pixels = imgSize * imgSize
 
-        filename = f"data/precipitation/train_test_2016-2019_input-length_{input_length}_img-ahead_{image_ahead}_rain-threshhold_{int(rain_amount_thresh * 100)}.h5"
+        filename = (
+            f"data/precipitation/train_test_2016-2019_input-length_{input_length}_img-"
+            f"ahead_{image_ahead}_rain-threshhold_{int(rain_amount_thresh * 100)}.h5"
+        )
         with h5py.File(filename, "w", rdcc_nbytes=1024**3) as f:
             train_set = f.create_group("train")
             test_set = f.create_group("test")

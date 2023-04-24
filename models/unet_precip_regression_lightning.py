@@ -1,4 +1,4 @@
-from models.unet_parts import *
+from models.unet_parts import Down, DoubleConv, Up, OutConv
 from models.unet_parts_depthwise_separable import DoubleConvDS, UpDS, DownDS
 from models.layers import CBAM
 from models.regression_lightning import Precip_regression_base

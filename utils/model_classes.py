@@ -2,6 +2,7 @@ from models import unet_precip_regression_lightning as unet_regr
 import lightning.pytorch as pl
 from typing import Tuple, Type
 
+
 def get_model_class(model_file) -> Tuple[Type[pl.LightningModule], str]:
     # This is for some nice plotting
     if "UNet_Attention" in model_file:
@@ -26,5 +27,5 @@ def get_model_class(model_file) -> Tuple[Type[pl.LightningModule], str]:
         model_name = "UNet"
         model = unet_regr.UNet
     else:
-        raise NotImplementedError(f"Model not found")
+        raise NotImplementedError("Model not found")
     return model, model_name

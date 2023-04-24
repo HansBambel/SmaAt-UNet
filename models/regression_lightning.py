@@ -1,5 +1,4 @@
 import lightning.pytorch as pl
-import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -130,7 +129,7 @@ class Precip_regression_base(UNet_base):
         self.valid_sampler = SubsetRandomSampler(valid_idx)
 
     def train_dataloader(self):
-        train_loader = torch.utils.data.DataLoader(
+        train_loader = DataLoader(
             self.train_dataset,
             batch_size=self.hparams.batch_size,
             sampler=self.train_sampler,
@@ -140,7 +139,7 @@ class Precip_regression_base(UNet_base):
         return train_loader
 
     def val_dataloader(self):
-        valid_loader = torch.utils.data.DataLoader(
+        valid_loader = DataLoader(
             self.valid_dataset,
             batch_size=self.hparams.batch_size,
             sampler=self.valid_sampler,

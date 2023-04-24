@@ -4,7 +4,6 @@ from torch.utils.data import DataLoader
 from torch import optim
 from torch import nn
 from torchvision import transforms
-import numpy as np
 from utils import dataset_VOC
 import time
 from tqdm import tqdm

@@ -3,3 +3,4 @@ data
 runs
 lightning
 checkpoints
+.ruff_cache

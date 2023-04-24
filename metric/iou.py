@@ -1,4 +1,3 @@
-import torch
 import numpy as np
 from metric import metric
 from metric.confusionmatrix import ConfusionMatrix
