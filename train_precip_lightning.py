@@ -1,3 +1,5 @@
+from root import ROOT_DIR
+
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import (
     ModelCheckpoint,
@@ -7,7 +9,6 @@ from lightning.pytorch.callbacks import (
 from lightning.pytorch import loggers
 import argparse
 from models import unet_precip_regression_lightning as unet_regr
-import os
 
 
 def get_batch_size(hparams):
@@ -40,10 +41,10 @@ def train_regression(hparams):
     else:
         raise NotImplementedError(f"Model '{hparams.model}' not implemented")
 
-    default_save_path = "lightning/precip_regression"
+    default_save_path = ROOT_DIR / "lightning" / "precip_regression"
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath=os.getcwd() + "/" + default_save_path + "/" + net.__class__.__name__ + "/",
+        dirpath=default_save_path / net.__class__.__name__,
         filename=net.__class__.__name__ + "_rain_threshhold_50_{epoch}-{val_loss:.6f}",
         save_top_k=-1,
         verbose=False,
@@ -78,7 +79,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--dataset_folder",
-        default="data/precipitation/RAD_NL25_RAC_5min_train_test_2016-2019.h5",
+        default=ROOT_DIR / "data" / "precipitation" / "RAD_NL25_RAC_5min_train_test_2016-2019.h5",
         type=str,
     )
     parser.add_argument("--batch_size", type=int, default=6)
@@ -99,7 +100,9 @@ if __name__ == "__main__":
     # args.val_check_interval = 0.25
     args.kernels_per_layer = 2
     args.use_oversampled_dataset = True
-    args.dataset_folder = "data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
+    args.dataset_folder = (
+        ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
+    )
     # args.resume_from_checkpoint = f"lightning/precip_regression/{args.model}/UNetDS_Attention.ckpt"
 
     # args.batch_size = get_batch_size(hparams=args)
