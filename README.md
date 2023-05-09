@@ -13,7 +13,7 @@ The current master branch has since upgraded packages and was refactored. Since 
 
 
 ## Installing dependencies
-This project is using [poetry](https://python-poetry.org/) as dependency management. Therefore installing the required dependencies is as easy as this:
+This project is using [poetry](https://python-poetry.org/) as dependency management. Therefore, installing the required dependencies is as easy as this:
 ```shell
 conda create --name smaat-unet python=3.9
 conda activate smaat-unet
