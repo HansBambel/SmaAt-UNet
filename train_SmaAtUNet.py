@@ -1,3 +1,5 @@
+from typing import Optional
+
 from models.SmaAt_UNet import SmaAt_UNet
 import torch
 from torch.utils.data import DataLoader
@@ -9,6 +11,7 @@ import time
 from tqdm import tqdm
 from metric import iou
 import os
+from pathlib import Path
 
 
 def get_lr(optimizer):
@@ -24,15 +27,17 @@ def fit(
     train_dl,
     valid_dl,
     dev=torch.device("cpu"),
-    save_every: int = None,
+    save_every: Optional[int] = None,
     tensorboard: bool = False,
     earlystopping=None,
     lr_scheduler=None,
 ):
+    writer = None
     if tensorboard:
         from torch.utils.tensorboard import SummaryWriter
 
         writer = SummaryWriter(comment=f"{model.__class__.__name__}")
+
     start_time = time.time()
     best_mIoU = -1.0
     earlystopping_counter = 0
@@ -103,7 +108,7 @@ def fit(
             f"Early stopping counter: {earlystopping_counter}/{earlystopping}" if earlystopping is not None else "",
         )
 
-        if tensorboard:
+        if writer:
             # add to tensorboard
             writer.add_scalar("Loss/train", train_loss, epoch)
             writer.add_scalar("Loss/val", val_loss, epoch)
@@ -131,7 +136,7 @@ def fit(
 
 if __name__ == "__main__":
     dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    dataset_folder = "data/PascalVOC"
+    dataset_folder = Path("data/VOCdevkit")
     batch_size = 8
     learning_rate = 0.001
     epochs = 200

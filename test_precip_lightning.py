@@ -130,8 +130,8 @@ if __name__ == "__main__":
     load = False
     if load:
         # load the losses
-        with open(f"{model_folder}/model_losses_MSE.pkl", "rb") as f:
-            test_losses = pickle.load(f)
+        with open(f"{model_folder}/model_losses_MSE.pkl", "rb") as f_load:
+            test_losses = pickle.load(f_load)
 
     else:
         test_losses = get_model_losses(model_folder, data_file)
@@ -139,8 +139,8 @@ if __name__ == "__main__":
         with open(
             model_folder + "/model_losses_MSE.pkl",
             "wb",
-        ) as f:
-            pickle.dump(test_losses, f)
+        ) as f_write:
+            pickle.dump(test_losses, f_write)
 
     # Plot results
     print(test_losses)

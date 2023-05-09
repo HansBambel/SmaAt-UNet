@@ -2,7 +2,7 @@ import random
 import torch
 from torch.utils.data import Dataset
 from PIL import Image
-import os
+from pathlib import Path
 from torchvision import transforms
 import torchvision.transforms.functional as TF
 import numpy as np
@@ -95,23 +95,22 @@ class VOCSegmentation(Dataset):
         "tv/monitor",
     ]
 
-    def __init__(self, root, image_set="train", transformations=None, augmentations=False):
+    def __init__(self, root: Path, image_set="train", transformations=None, augmentations=False):
         super(VOCSegmentation, self).__init__()
         assert image_set in ["train", "val", "trainval"]
-        base_dir = os.path.join("VOCdevkit", "VOC2012")
 
-        voc_root = os.path.join(root, base_dir)
-        image_dir = os.path.join(voc_root, "JPEGImages")
-        mask_dir = os.path.join(voc_root, "SegmentationClass")
+        voc_root = root / "VOC2012"
+        image_dir = voc_root / "JPEGImages"
+        mask_dir = voc_root / "SegmentationClass"
 
-        splits_dir = os.path.join(voc_root, "ImageSets/Segmentation")
+        splits_dir = voc_root / "ImageSets" / "Segmentation"
 
-        split_f = os.path.join(splits_dir, image_set.rstrip("\n") + ".txt")
-        with open(os.path.join(split_f), "r") as f:
+        split_f = splits_dir / (image_set.rstrip("\n") + ".txt")
+        with open(split_f, "r") as f:
             file_names = [x.strip() for x in f.readlines()]
 
-        self.images = [os.path.join(image_dir, x + ".jpg") for x in file_names]
-        self.masks = [os.path.join(mask_dir, x + ".png") for x in file_names]
+        self.images = [image_dir / (x + ".jpg") for x in file_names]
+        self.masks = [mask_dir / (x + ".png") for x in file_names]
         assert len(self.images) == len(self.masks)
 
         self.transformations = transformations
@@ -153,7 +152,7 @@ class VOCSegmentation(Dataset):
         if random.random() > 0.5:
             img = TF.hflip(img)
             target = TF.hflip(target)
-        # Random Rotation (clockwise and counter clockwise)
+        # Random Rotation (clockwise and counterclockwise)
         if random.random() > 0.5:
             degrees = 10
             if random.random() > 0.5:
