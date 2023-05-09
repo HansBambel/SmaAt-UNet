@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
@@ -16,6 +18,8 @@ def get_model_loss(model, test_dl, loss="mse", denormalize=True):
         loss_func = nn.functional.mse_loss
     elif loss.lower() == "mae":
         loss_func = nn.functional.l1_loss
+    else:
+        raise ValueError(f"Unknown loss: {loss}")
     factor = 1
     if denormalize:
         factor = 47.83
@@ -40,7 +44,7 @@ def get_persistence_metrics(test_dl, denormalize=True):
     total_fp = 0
     total_tn = 0
     total_fn = 0
-    loss_model = 0.0
+    loss_model, precision, recall, accuracy, f1, csi, far = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     for x, y_true in tqdm(test_dl, leave=False):
         y_pred = x[:, -1, :]
         loss_model += loss_func(y_pred.squeeze() * factor, y_true * factor, reduction="sum") / y_true.size(0)
@@ -123,21 +127,23 @@ def plot_losses(test_losses, loss):
 
 if __name__ == "__main__":
     # Models that are compared should be in this folder (the ones with the lowest validation error)
-    model_folder = "checkpoints/comparison"
-    data_file = "data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
+    model_folder = Path("checkpoints") / "comparison"
+    data_file = (
+        Path("data") / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
+    )
 
     # This changes whether to load or to run the model loss calculation
     load = False
     if load:
         # load the losses
-        with open(f"{model_folder}/model_losses_MSE.pkl", "rb") as f_load:
+        with open(model_folder / "model_losses_MSE.pkl", "rb") as f_load:
             test_losses = pickle.load(f_load)
 
     else:
         test_losses = get_model_losses(model_folder, data_file)
         # Save losses
         with open(
-            model_folder + "/model_losses_MSE.pkl",
+            model_folder / "model_losses_MSE.pkl",
             "wb",
         ) as f_write:
             pickle.dump(test_losses, f_write)

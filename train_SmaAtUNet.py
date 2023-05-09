@@ -88,7 +88,7 @@ def fit(
                     "train_loss": train_loss,
                     "mIOU": mean_iou,
                 },
-                f"checkpoints/best_mIoU_model_{model.__class__.__name__}.pt",
+                Path("checkpoints") / f"best_mIoU_model_{model.__class__.__name__}.pt",
             )
             best_mIoU = mean_iou
             earlystopping_counter = 0
@@ -128,7 +128,7 @@ def fit(
                         "train_loss": train_loss,
                         "mIOU": mean_iou,
                     },
-                    f"checkpoints/model_{model.__class__.__name__}_epoch_{epoch}.pt",
+                    Path("checkpoints") / f"model_{model.__class__.__name__}_epoch_{epoch}.pt",
                 )
         if lr_scheduler is not None:
             lr_scheduler.step(mean_iou)
@@ -136,7 +136,7 @@ def fit(
 
 if __name__ == "__main__":
     dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    dataset_folder = Path("data/VOCdevkit")
+    dataset_folder = Path("data") / "VOCdevkit"
     batch_size = 8
     learning_rate = 0.001
     epochs = 200

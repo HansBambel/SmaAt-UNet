@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 from utils import dataset_precip, model_classes
 from tqdm import tqdm
@@ -46,7 +48,9 @@ def get_metrics_from_model(model, test_dl, threshold=0.5):
 
 if __name__ == "__main__":
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
-        in_file="data/precipitation/train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5",
+        in_file=Path("data")
+        / "precipitation"
+        / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5",
         num_input_images=12,
         num_output_images=6,
         train=False,
@@ -54,7 +58,7 @@ if __name__ == "__main__":
 
     test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, pin_memory=True)
 
-    model_folder = "checkpoints/comparison"
+    model_folder = Path("checkpoints") / "comparison"
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
 
     # go through test set and calculate acc, precision, recall and F1
@@ -64,7 +68,7 @@ if __name__ == "__main__":
     # go through models
     for model_file in tqdm(models, desc="Models", leave=True):
         model, model_name = model_classes.get_model_class(model_file)
-        model = model.load_from_checkpoint(f"{model_folder}/{model_file}")
+        model = model.load_from_checkpoint(model_folder / model_file)
         model.eval()
 
         precision, recall, accuracy, f1, csi, far, hss = get_metrics_from_model(model, test_dl, threshold)
@@ -78,5 +82,5 @@ if __name__ == "__main__":
             "HSS": hss,
         }
         print(model_name, model_metrics[model_name])
-    with open(model_folder + f"/model_metrics_{threshold}mmh.pkl", "wb") as f:
+    with open(model_folder / f"model_metrics_{threshold}mmh.pkl", "wb") as f:
         pickle.dump(model_metrics, f)
