@@ -2,11 +2,15 @@ import h5py
 import numpy as np
 from tqdm import tqdm
 
+from root import ROOT_DIR
+
 
 def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: float):
     """Create a dataset that has target images containing at least `rain_amount_thresh` (percent) of rain."""
+
+    precipitation_folder = ROOT_DIR / "data" / "precipitation"
     with h5py.File(
-        "data/precipitation/RAD_NL25_RAC_5min_train_test_2016-2019.h5",
+        precipitation_folder / "RAD_NL25_RAC_5min_train_test_2016-2019.h5",
         "r",
         rdcc_nbytes=1024**3,
     ) as orig_f:
@@ -20,9 +24,10 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
         num_pixels = imgSize * imgSize
 
         filename = (
-            f"data/precipitation/train_test_2016-2019_input-length_{input_length}_img-"
+            precipitation_folder / f"train_test_2016-2019_input-length_{input_length}_img-"
             f"ahead_{image_ahead}_rain-threshhold_{int(rain_amount_thresh * 100)}.h5"
         )
+
         with h5py.File(filename, "w", rdcc_nbytes=1024**3) as f:
             train_set = f.create_group("train")
             test_set = f.create_group("test")
