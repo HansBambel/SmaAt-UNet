@@ -147,26 +147,26 @@ if __name__ == "__main__":
     # Load your dataset here
     transformations = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224)])
     voc_dataset_train = dataset_VOC.VOCSegmentation(
-        dataset_folder,
+        root=dataset_folder,
         image_set="train",
         transformations=transformations,
         augmentations=True,
     )
     voc_dataset_val = dataset_VOC.VOCSegmentation(
-        dataset_folder,
+        root=dataset_folder,
         image_set="val",
         transformations=transformations,
         augmentations=False,
     )
     train_dl = DataLoader(
-        voc_dataset_train,
+        dataset=voc_dataset_train,
         batch_size=batch_size,
         shuffle=True,
         num_workers=0,
         pin_memory=True,
     )
     valid_dl = DataLoader(
-        voc_dataset_val,
+        dataset=voc_dataset_val,
         batch_size=batch_size,
         shuffle=False,
         num_workers=0,
@@ -184,13 +184,13 @@ if __name__ == "__main__":
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(opt, mode="max", factor=0.1, patience=4)
     # Train network
     fit(
-        epochs,
-        model,
-        loss_func,
-        opt,
-        train_dl,
-        valid_dl,
-        dev,
+        epochs=epochs,
+        model=model,
+        loss_func=loss_func,
+        opt=opt,
+        train_dl=train_dl,
+        valid_dl=valid_dl,
+        dev=dev,
         save_every=save_every,
         tensorboard=True,
         earlystopping=earlystopping,
