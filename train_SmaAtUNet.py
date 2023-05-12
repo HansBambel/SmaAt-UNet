@@ -6,12 +6,13 @@ from torch.utils.data import DataLoader
 from torch import optim
 from torch import nn
 from torchvision import transforms
+
+from root import ROOT_DIR
 from utils import dataset_VOC
 import time
 from tqdm import tqdm
 from metric import iou
 import os
-from pathlib import Path
 
 
 def get_lr(optimizer):
@@ -88,7 +89,7 @@ def fit(
                     "train_loss": train_loss,
                     "mIOU": mean_iou,
                 },
-                Path("checkpoints") / f"best_mIoU_model_{model.__class__.__name__}.pt",
+                ROOT_DIR / "checkpoints" / f"best_mIoU_model_{model.__class__.__name__}.pt",
             )
             best_mIoU = mean_iou
             earlystopping_counter = 0
@@ -128,7 +129,7 @@ def fit(
                         "train_loss": train_loss,
                         "mIOU": mean_iou,
                     },
-                    Path("checkpoints") / f"model_{model.__class__.__name__}_epoch_{epoch}.pt",
+                    ROOT_DIR / "checkpoints" / f"model_{model.__class__.__name__}_epoch_{epoch}.pt",
                 )
         if lr_scheduler is not None:
             lr_scheduler.step(mean_iou)
@@ -136,7 +137,7 @@ def fit(
 
 if __name__ == "__main__":
     dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    dataset_folder = Path("data") / "VOCdevkit"
+    dataset_folder = ROOT_DIR / "data" / "VOCdevkit"
     batch_size = 8
     learning_rate = 0.001
     epochs = 200
