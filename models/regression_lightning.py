@@ -1,5 +1,4 @@
-import pytorch_lightning as pl
-import torch
+import lightning.pytorch as pl
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -12,19 +11,23 @@ class UNet_base(pl.LightningModule):
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument('--model', type=str, default='UNet',
-                            choices=['UNet', 'UNetDS', 'UNet_Attention', 'UNetDS_Attention'])
-        parser.add_argument('--n_channels', type=int, default=12)
-        parser.add_argument('--n_classes', type=int, default=1)
-        parser.add_argument('--kernels_per_layer', type=int, default=1)
-        parser.add_argument('--bilinear', type=bool, default=True)
-        parser.add_argument('--reduction_ratio', type=int, default=16)
-        parser.add_argument('--lr_patience', type=int, default=5)
+        parser.add_argument(
+            "--model",
+            type=str,
+            default="UNet",
+            choices=["UNet", "UNetDS", "UNet_Attention", "UNetDS_Attention"],
+        )
+        parser.add_argument("--n_channels", type=int, default=12)
+        parser.add_argument("--n_classes", type=int, default=1)
+        parser.add_argument("--kernels_per_layer", type=int, default=1)
+        parser.add_argument("--bilinear", type=bool, default=True)
+        parser.add_argument("--reduction_ratio", type=int, default=16)
+        parser.add_argument("--lr_patience", type=int, default=5)
         return parser
 
     def __init__(self, hparams):
         super().__init__()
-        self.hparams = hparams
+        self.save_hyperparameters(hparams)
 
     def forward(self, x):
         pass
@@ -32,11 +35,10 @@ class UNet_base(pl.LightningModule):
     def configure_optimizers(self):
         opt = optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
         scheduler = {
-            'scheduler': optim.lr_scheduler.ReduceLROnPlateau(opt,
-                                                              mode="min",
-                                                              factor=0.1,
-                                                              patience=self.hparams.lr_patience),
-            'monitor': 'val_loss',  # Default: val_loss
+            "scheduler": optim.lr_scheduler.ReduceLROnPlateau(
+                opt, mode="min", factor=0.1, patience=self.hparams.lr_patience
+            ),
+            "monitor": "val_loss",  # Default: val_loss
         }
         return [opt], [scheduler]
 
@@ -48,47 +50,26 @@ class UNet_base(pl.LightningModule):
         x, y = batch
         y_pred = self(x)
         loss = self.loss_func(y_pred.squeeze(), y)
-        return {'loss': loss}
-
-    def training_epoch_end(self, outputs):
-        loss_mean = 0.0
-        for output in outputs:
-            loss_mean += output['loss']
-
-        loss_mean /= len(outputs)
-        return {"log": {"train_loss": loss_mean},
-                "progress_bar": {"train_loss": loss_mean}}
+        # logs metrics for each training_step,
+        # and the average across the epoch, to the progress bar and logger
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
-        val_loss = self.loss_func(y_pred.squeeze(), y)
-        # val_loss += loss.item()
-        return {"val_loss": val_loss}
-
-    def validation_epoch_end(self, outputs):
-        avg_loss = 0.0
-        for output in outputs:
-            avg_loss += output["val_loss"]
-        avg_loss /= len(outputs)
-        logs = {"val_loss": avg_loss}
-        return {"val_loss": avg_loss, "log": logs,
-                "progress_bar": {"val_loss": avg_loss}}
+        loss = self.loss_func(y_pred.squeeze(), y)
+        self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
+        """Calculate the loss (MSE per default) on the test set normalized and denormalized."""
         x, y = batch
         y_pred = self(x)
-        val_loss = self.loss_func(y_pred.squeeze(), y)
-        return {"test_loss": val_loss}
-
-    def test_epoch_end(self, outputs):
-        avg_loss = 0.0
-        for output in outputs:
-            avg_loss += output["test_loss"]
-        avg_loss /= len(outputs)
-        logs = {"test_loss": avg_loss}
-        return {"test_loss": avg_loss, "log": logs,
-                "progress_bar": {"test_loss": avg_loss}}
+        loss = self.loss_func(y_pred.squeeze(), y)
+        factor = 47.83
+        loss_denorm = self.loss_func(y_pred.squeeze() * factor, y * factor)
+        self.log("MSE", loss)
+        self.log("MSE_denormalized", loss_denorm)
 
 
 class Precip_regression_base(UNet_base):
@@ -117,28 +98,26 @@ class Precip_regression_base(UNet_base):
         # )
         train_transform = None
         valid_transform = None
-        if self.hparams.use_oversampled_dataset:
-            self.train_dataset = dataset_precip.precipitation_maps_oversampled_h5(
-                in_file=self.hparams.dataset_folder, num_input_images=self.hparams.num_input_images,
-                num_output_images=self.hparams.num_output_images, train=True,
-                transform=train_transform
-            )
-            self.valid_dataset = dataset_precip.precipitation_maps_oversampled_h5(
-                in_file=self.hparams.dataset_folder, num_input_images=self.hparams.num_input_images,
-                num_output_images=self.hparams.num_output_images, train=True,
-                transform=valid_transform
-            )
-        else:
-            self.train_dataset = dataset_precip.precipitation_maps_h5(
-                in_file=self.hparams.dataset_folder, num_input_images=self.hparams.num_input_images,
-                num_output_images=self.hparams.num_output_images, train=True,
-                transform=train_transform
-            )
-            self.valid_dataset = dataset_precip.precipitation_maps_h5(
-                in_file=self.hparams.dataset_folder, num_input_images=self.hparams.num_input_images,
-                num_output_images=self.hparams.num_output_images, train=True,
-                transform=valid_transform
-            )
+        precip_dataset = (
+            dataset_precip.precipitation_maps_oversampled_h5
+            if self.hparams.use_oversampled_dataset
+            else dataset_precip.precipitation_maps_h5
+        )
+        self.train_dataset = precip_dataset(
+            in_file=self.hparams.dataset_folder,
+            num_input_images=self.hparams.num_input_images,
+            num_output_images=self.hparams.num_output_images,
+            train=True,
+            transform=train_transform,
+        )
+        self.valid_dataset = precip_dataset(
+            in_file=self.hparams.dataset_folder,
+            num_input_images=self.hparams.num_input_images,
+            num_output_images=self.hparams.num_output_images,
+            train=True,
+            transform=valid_transform,
+        )
+
         num_train = len(self.train_dataset)
         indices = list(range(num_train))
         split = int(np.floor(self.hparams.valid_size * num_train))
@@ -150,15 +129,21 @@ class Precip_regression_base(UNet_base):
         self.valid_sampler = SubsetRandomSampler(valid_idx)
 
     def train_dataloader(self):
-        train_loader = torch.utils.data.DataLoader(
-            self.train_dataset, batch_size=self.hparams.batch_size, sampler=self.train_sampler,
-            num_workers=1, pin_memory=True
+        train_loader = DataLoader(
+            self.train_dataset,
+            batch_size=self.hparams.batch_size,
+            sampler=self.train_sampler,
+            num_workers=1,
+            pin_memory=True,
         )
         return train_loader
 
     def val_dataloader(self):
-        valid_loader = torch.utils.data.DataLoader(
-            self.valid_dataset, batch_size=self.hparams.batch_size, sampler=self.valid_sampler,
-            num_workers=1, pin_memory=True
+        valid_loader = DataLoader(
+            self.valid_dataset,
+            batch_size=self.hparams.batch_size,
+            sampler=self.valid_sampler,
+            num_workers=1,
+            pin_memory=True,
         )
         return valid_loader

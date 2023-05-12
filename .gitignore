@@ -1,3 +1,7 @@
 .idea
 data
 runs
+lightning
+checkpoints
+.ruff_cache
+.mypy_cache

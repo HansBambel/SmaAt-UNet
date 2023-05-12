@@ -6,17 +6,19 @@ from utils import dataset_precip
 
 
 # Taken from: https://gist.github.com/kevinzakka/d33bf8d6c7f06a9d8c76d97a7879f5cb
-def get_train_valid_loader(data_dir,
-                           batch_size,
-                           random_seed,
-                           num_input_images,
-                           num_output_images,
-                           augment,
-                           classification,
-                           valid_size=0.1,
-                           shuffle=True,
-                           num_workers=4,
-                           pin_memory=False):
+def get_train_valid_loader(
+    data_dir,
+    batch_size,
+    random_seed,
+    num_input_images,
+    num_output_images,
+    augment,
+    classification,
+    valid_size=0.1,
+    shuffle=True,
+    num_workers=4,
+    pin_memory=False,
+):
     """
     Utility function for loading and returning train and valid
     multi-process iterators over the CIFAR-10 dataset. A sample
@@ -41,7 +43,7 @@ def get_train_valid_loader(data_dir,
     - valid_loader: validation set iterator.
     """
     error_msg = "[!] valid_size should be in the range [0, 1]."
-    assert ((valid_size >= 0) and (valid_size <= 1)), error_msg
+    assert (valid_size >= 0) and (valid_size <= 1), error_msg
 
     # Since I am not dealing with RGB images I do not need this
     # normalize = transforms.Normalize(
@@ -57,11 +59,13 @@ def get_train_valid_loader(data_dir,
     # ])
     if augment:
         # TODO flipping, rotating, sequence flipping (torch.flip seems very expensive)
-        train_transform = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            # transforms.ToTensor(),
-            # normalize,
-        ])
+        train_transform = transforms.Compose(
+            [
+                transforms.RandomHorizontalFlip(),
+                # transforms.ToTensor(),
+                # normalize,
+            ]
+        )
     else:
         train_transform = None
         # train_transform = transforms.Compose([
@@ -71,30 +75,37 @@ def get_train_valid_loader(data_dir,
     if classification:
         # load the dataset
         train_dataset = dataset_precip.precipitation_maps_classification_h5(
-            in_file=data_dir, num_input_images=num_input_images,
-            img_to_predict=num_output_images, train=True,
-            transform=train_transform
+            in_file=data_dir,
+            num_input_images=num_input_images,
+            img_to_predict=num_output_images,
+            train=True,
+            transform=train_transform,
         )
 
         valid_dataset = dataset_precip.precipitation_maps_classification_h5(
-            in_file=data_dir, num_input_images=num_input_images,
-            img_to_predict=num_output_images, train=True,
-            transform=valid_transform
+            in_file=data_dir,
+            num_input_images=num_input_images,
+            img_to_predict=num_output_images,
+            train=True,
+            transform=valid_transform,
         )
     else:
         # load the dataset
         train_dataset = dataset_precip.precipitation_maps_h5(
-            in_file=data_dir, num_input_images=num_input_images,
-            num_output_images=num_output_images, train=True,
-            transform=train_transform
+            in_file=data_dir,
+            num_input_images=num_input_images,
+            num_output_images=num_output_images,
+            train=True,
+            transform=train_transform,
         )
 
         valid_dataset = dataset_precip.precipitation_maps_h5(
-            in_file=data_dir, num_input_images=num_input_images,
-            num_output_images=num_output_images, train=True,
-            transform=valid_transform
+            in_file=data_dir,
+            num_input_images=num_input_images,
+            num_output_images=num_output_images,
+            train=True,
+            transform=valid_transform,
         )
-
 
     num_train = len(train_dataset)
     indices = list(range(num_train))
@@ -109,25 +120,33 @@ def get_train_valid_loader(data_dir,
     valid_sampler = SubsetRandomSampler(valid_idx)
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, sampler=train_sampler,
-        num_workers=num_workers, pin_memory=pin_memory
+        train_dataset,
+        batch_size=batch_size,
+        sampler=train_sampler,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
     )
     valid_loader = torch.utils.data.DataLoader(
-        valid_dataset, batch_size=batch_size, sampler=valid_sampler,
-        num_workers=num_workers, pin_memory=pin_memory
+        valid_dataset,
+        batch_size=batch_size,
+        sampler=valid_sampler,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
     )
 
     return train_loader, valid_loader
 
 
-def get_test_loader(data_dir,
-                    batch_size,
-                    num_input_images,
-                    num_output_images,
-                    classification,
-                    shuffle=False,
-                    num_workers=4,
-                    pin_memory=False):
+def get_test_loader(
+    data_dir,
+    batch_size,
+    num_input_images,
+    num_output_images,
+    classification,
+    shuffle=False,
+    num_workers=4,
+    pin_memory=False,
+):
     """
     Utility function for loading and returning a multi-process
     test iterator over the CIFAR-10 dataset.
@@ -158,20 +177,27 @@ def get_test_loader(data_dir,
     # ])
     if classification:
         dataset = dataset_precip.precipitation_maps_classification_h5(
-            in_file=data_dir, num_input_images=num_input_images,
-            img_to_predict=num_output_images, train=False,
-            transform=transform
+            in_file=data_dir,
+            num_input_images=num_input_images,
+            img_to_predict=num_output_images,
+            train=False,
+            transform=transform,
         )
     else:
         dataset = dataset_precip.precipitation_maps_h5(
-            in_file=data_dir, num_input_images=num_input_images,
-            num_output_images=num_output_images, train=False,
-            transform=transform
+            in_file=data_dir,
+            num_input_images=num_input_images,
+            num_output_images=num_output_images,
+            train=False,
+            transform=transform,
         )
 
     data_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=shuffle,
-        num_workers=num_workers, pin_memory=pin_memory
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
     )
 
     return data_loader
@@ -180,17 +206,19 @@ def get_test_loader(data_dir,
 if __name__ == "__main__":
     folder = "C:/Users/hans-/Documents/weather_prediction/data/precipitation/"
     data = "RAD_NL25_RAC_5min_train_test_2016-2019.h5"
-    train_dl, valid_dl = get_train_valid_loader(folder + data,
-                                                batch_size=8,
-                                                random_seed=1337,
-                                                num_input_images=12,
-                                                num_output_images=6,
-                                                classification=True,
-                                                augment=False,
-                                                valid_size=0.1,
-                                                shuffle=True,
-                                                num_workers=4,
-                                                pin_memory=False)
+    train_dl, valid_dl = get_train_valid_loader(
+        folder + data,
+        batch_size=8,
+        random_seed=1337,
+        num_input_images=12,
+        num_output_images=6,
+        classification=True,
+        augment=False,
+        valid_size=0.1,
+        shuffle=True,
+        num_workers=4,
+        pin_memory=False,
+    )
     for xb, yb in train_dl:
         print("xb.shape: ", xb.shape)
         print("yb.shape: ", yb.shape)

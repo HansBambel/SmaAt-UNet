@@ -5,16 +5,15 @@ import torch.nn.functional as F
 
 # Taken from https://discuss.pytorch.org/t/is-there-any-layer-like-tensorflows-space-to-depth-function/3487/14
 class DepthToSpace(nn.Module):
-
     def __init__(self, block_size):
         super().__init__()
         self.bs = block_size
 
     def forward(self, x):
         N, C, H, W = x.size()
-        x = x.view(N, self.bs, self.bs, C // (self.bs ** 2), H, W)  # (N, bs, bs, C//bs^2, H, W)
+        x = x.view(N, self.bs, self.bs, C // (self.bs**2), H, W)  # (N, bs, bs, C//bs^2, H, W)
         x = x.permute(0, 3, 4, 1, 5, 2).contiguous()  # (N, C//bs^2, H, bs, W, bs)
-        x = x.view(N, C // (self.bs ** 2), H * self.bs, W * self.bs)  # (N, C//bs^2, H * bs, W * bs)
+        x = x.view(N, C // (self.bs**2), H * self.bs, W * self.bs)  # (N, C//bs^2, H * bs, W * bs)
         return x
 
 
@@ -28,7 +27,7 @@ class SpaceToDepth(nn.Module):
         N, C, H, W = x.size()
         x = x.view(N, C, H // self.bs, self.bs, W // self.bs, self.bs)  # (N, C, H//bs, bs, W//bs, bs)
         x = x.permute(0, 3, 5, 1, 2, 4).contiguous()  # (N, bs, bs, C, H//bs, W//bs)
-        x = x.view(N, C * (self.bs ** 2), H // self.bs, W // self.bs)  # (N, C*bs^2, H//bs, W//bs)
+        x = x.view(N, C * (self.bs**2), H // self.bs, W // self.bs)  # (N, C*bs^2, H//bs, W//bs)
         return x
 
 
@@ -36,8 +35,13 @@ class DepthwiseSeparableConv(nn.Module):
     def __init__(self, in_channels, output_channels, kernel_size, padding=0, kernels_per_layer=1):
         super(DepthwiseSeparableConv, self).__init__()
         # In Tensorflow DepthwiseConv2D has depth_multiplier instead of kernels_per_layer
-        self.depthwise = nn.Conv2d(in_channels, in_channels * kernels_per_layer, kernel_size=kernel_size, padding=padding,
-                                   groups=in_channels)
+        self.depthwise = nn.Conv2d(
+            in_channels,
+            in_channels * kernels_per_layer,
+            kernel_size=kernel_size,
+            padding=padding,
+            groups=in_channels,
+        )
         self.pointwise = nn.Conv2d(in_channels * kernels_per_layer, output_channels, kernel_size=1)
 
     def forward(self, x):
@@ -62,6 +66,7 @@ class DoubleDense(nn.Module):
 
 class DoubleDSConv(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
+
     def __init__(self, in_channels, out_channels):
         super().__init__()
         self.double_ds_conv = nn.Sequential(
@@ -70,7 +75,7 @@ class DoubleDSConv(nn.Module):
             nn.ReLU(inplace=True),
             DepthwiseSeparableConv(out_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
     def forward(self, x):
@@ -94,7 +99,7 @@ class ChannelAttention(nn.Module):
             Flatten(),
             nn.Linear(input_channels, input_channels // reduction_ratio),
             nn.ReLU(),
-            nn.Linear(input_channels // reduction_ratio, input_channels)
+            nn.Linear(input_channels // reduction_ratio, input_channels),
         )
 
     def forward(self, x):
@@ -109,7 +114,7 @@ class ChannelAttention(nn.Module):
 class SpatialAttention(nn.Module):
     def __init__(self, kernel_size=7):
         super(SpatialAttention, self).__init__()
-        assert kernel_size in (3, 7), 'kernel size must be 3 or 7'
+        assert kernel_size in (3, 7), "kernel size must be 3 or 7"
         padding = 3 if kernel_size == 7 else 1
         self.conv = nn.Conv2d(2, 1, kernel_size=kernel_size, padding=padding, bias=False)
         self.bn = nn.BatchNorm2d(1)

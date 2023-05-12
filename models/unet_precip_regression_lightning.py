@@ -1,17 +1,15 @@
-import argparse
-from models.unet_parts import *
+from models.unet_parts import Down, DoubleConv, Up, OutConv
 from models.unet_parts_depthwise_separable import DoubleConvDS, UpDS, DownDS
 from models.layers import CBAM
-import pytorch_lightning as pl
 from models.regression_lightning import Precip_regression_base
 
 
 class UNet(Precip_regression_base):
     def __init__(self, hparams):
         super(UNet, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
 
         self.inc = DoubleConv(self.n_channels, 64)
         self.down1 = Down(64, 128)
@@ -43,10 +41,10 @@ class UNet(Precip_regression_base):
 class UNet_Attention(Precip_regression_base):
     def __init__(self, hparams):
         super(UNet_Attention, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        reduction_ratio = hparams.reduction_ratio
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        reduction_ratio = self.hparams.reduction_ratio
 
         self.inc = DoubleConv(self.n_channels, 64)
         self.cbam1 = CBAM(64, reduction_ratio=reduction_ratio)
@@ -88,10 +86,10 @@ class UNet_Attention(Precip_regression_base):
 class UNetDS(Precip_regression_base):
     def __init__(self, hparams):
         super(UNetDS, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        kernels_per_layer = hparams.kernels_per_layer
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        kernels_per_layer = self.hparams.kernels_per_layer
 
         self.inc = DoubleConvDS(self.n_channels, 64, kernels_per_layer=kernels_per_layer)
         self.down1 = DownDS(64, 128, kernels_per_layer=kernels_per_layer)
@@ -123,11 +121,11 @@ class UNetDS(Precip_regression_base):
 class UNetDS_Attention(Precip_regression_base):
     def __init__(self, hparams):
         super(UNetDS_Attention, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        reduction_ratio = hparams.reduction_ratio
-        kernels_per_layer = hparams.kernels_per_layer
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        reduction_ratio = self.hparams.reduction_ratio
+        kernels_per_layer = self.hparams.kernels_per_layer
 
         self.inc = DoubleConvDS(self.n_channels, 64, kernels_per_layer=kernels_per_layer)
         self.cbam1 = CBAM(64, reduction_ratio=reduction_ratio)
@@ -169,11 +167,11 @@ class UNetDS_Attention(Precip_regression_base):
 class UNetDS_Attention_4CBAMs(Precip_regression_base):
     def __init__(self, hparams):
         super(UNetDS_Attention_4CBAMs, self).__init__(hparams=hparams)
-        self.n_channels = hparams.n_channels
-        self.n_classes = hparams.n_classes
-        self.bilinear = hparams.bilinear
-        reduction_ratio = hparams.reduction_ratio
-        kernels_per_layer = hparams.kernels_per_layer
+        self.n_channels = self.hparams.n_channels
+        self.n_classes = self.hparams.n_classes
+        self.bilinear = self.hparams.bilinear
+        reduction_ratio = self.hparams.reduction_ratio
+        kernels_per_layer = self.hparams.kernels_per_layer
 
         self.inc = DoubleConvDS(self.n_channels, 64, kernels_per_layer=kernels_per_layer)
         self.cbam1 = CBAM(64, reduction_ratio=reduction_ratio)
@@ -208,27 +206,3 @@ class UNetDS_Attention_4CBAMs(Precip_regression_base):
         x = self.up4(x, x1Att)
         logits = self.outc(x)
         return logits
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser = Precip_regression_base.add_model_specific_args(parser)
-    parser = pl.Trainer.add_argparse_args(parser)
-
-    parser.add_argument('--dataset_folder',
-                        default='../data/precipitation/RAD_NL25_RAC_5min_train_test_2016-2019.h5', type=str)
-    parser.add_argument('--batch_size', type=int, default=8)
-    parser.add_argument('--learning_rate', type=float, default=0.001)
-    parser.add_argument('--epochs', type=int, default=150)
-
-    args = parser.parse_args()
-
-    net = UNetDS_Attention(hparams=args)
-
-    trainer = pl.Trainer(gpus=1,
-                         fast_dev_run=True,
-                         weights_summary=None,
-                         default_save_path="../lightning/precip",
-                         max_epochs=args.epochs)
-    trainer.fit(net)
