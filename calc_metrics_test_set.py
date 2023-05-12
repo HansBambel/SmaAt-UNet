@@ -1,6 +1,6 @@
-from pathlib import Path
-
 import torch
+
+from root import ROOT_DIR
 from utils import dataset_precip, model_classes
 from tqdm import tqdm
 import os
@@ -48,7 +48,8 @@ def get_metrics_from_model(model, test_dl, threshold=0.5):
 
 if __name__ == "__main__":
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
-        in_file=Path("data")
+        in_file=ROOT_DIR
+        / "data"
         / "precipitation"
         / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5",
         num_input_images=12,
@@ -58,7 +59,7 @@ if __name__ == "__main__":
 
     test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, pin_memory=True)
 
-    model_folder = Path("checkpoints") / "comparison"
+    model_folder = ROOT_DIR / "checkpoints" / "comparison"
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
 
     # go through test set and calculate acc, precision, recall and F1
