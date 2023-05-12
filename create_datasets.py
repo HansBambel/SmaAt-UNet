@@ -90,5 +90,5 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
 
 
 if __name__ == "__main__":
-    # create_dataset(input_length=12, image_ahead=6, rain_amount_thresh=0.2)
+    create_dataset(input_length=12, image_ahead=6, rain_amount_thresh=0.2)
     create_dataset(input_length=12, image_ahead=6, rain_amount_thresh=0.5)
