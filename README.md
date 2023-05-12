@@ -11,6 +11,7 @@ The original Code from the paper can be found in this branch: https://github.com
 
 The current master branch has since upgraded packages and was refactored. Since the exact package-versions differ the experiments may not be 100% reproducible.
 
+If you have problems running the code, feel free to open an issue here on Github.
 
 ## Installing dependencies
 This project is using [poetry](https://python-poetry.org/) as dependency management. Therefore, installing the required dependencies is as easy as this:
@@ -32,8 +33,8 @@ tqdm
 torch
 lightning
 tensorboard
+torchsummary
 h5py
-pandas
 numpy
 ```
 
