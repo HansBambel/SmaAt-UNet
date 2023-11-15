@@ -15,6 +15,7 @@ h5py = "^3.8.0"
 fastapi = ">=0.80"
 lightning = {extras = ["extra"], version = "^2.0.1.post0"}
 tensorboard = "^2.13.0"
+pandas = "1.5.3"
 
 
 [tool.poetry.group.dev.dependencies]
