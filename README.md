@@ -19,13 +19,9 @@ This project is using [poetry](https://python-poetry.org/) as dependency managem
 conda create --name smaat-unet python=3.9
 conda activate smaat-unet
 poetry install
-# Sadly poetry < 1.5 does not allow to install the GPU variant so you need to do that afterwards separately:
-pip3 install torch torchvision torchaudio --force-reinstall --index-url https://download.pytorch.org/whl/cu118
 ```
 
-I will update the pyproject.toml as soon as this is possible (https://github.com/python-poetry/poetry/issues/6409)
-
-In any case a [requirements.txt](requirements.txt) is also added from the poetry export.
+In any case a [requirements.txt](requirements.txt) is also added from the poetry export (`poetry export --without-hashes --output requirements.txt`).
 
 Basically, only the following requirements are needed:
 ```
