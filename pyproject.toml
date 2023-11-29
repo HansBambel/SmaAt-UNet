@@ -8,8 +8,14 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">3.9.7,<4.0"
 tqdm = "^4.65.0"
-torch = { version = "^2.0.0+cu118", source = "pytorch" }  # Sadly poetry still installs the CPU version
-torchvision = { version = "^0.15.1", source = "pytorch"  }
+torch = [
+    { version = "^2.0.0+cu118", source = "pytorch", platform = "!=darwin" },
+    { version = "^2.0.0", source = "pypi", platform = "darwin" }
+]
+torchvision = [
+    { version = "^0.15.1", source = "pytorch", platform = "!=darwin" },
+    { version = "^0.15.1", source = "pypi", platform = "darwin" },
+]
 torchsummary = "^1.5.1"
 h5py = "^3.8.0"
 fastapi = ">=0.80"
