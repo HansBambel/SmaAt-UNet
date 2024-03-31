@@ -25,7 +25,7 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
 
         filename = (
             precipitation_folder / f"train_test_2016-2019_input-length_{input_length}_img-"
-            f"ahead_{image_ahead}_rain-threshhold_{int(rain_amount_thresh * 100)}.h5"
+            f"ahead_{image_ahead}_rain-threshold_{int(rain_amount_thresh * 100)}.h5"
         )
 
         with h5py.File(filename, "w", rdcc_nbytes=1024**3) as f:

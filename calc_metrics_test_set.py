@@ -51,7 +51,7 @@ if __name__ == "__main__":
         in_file=ROOT_DIR
         / "data"
         / "precipitation"
-        / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5",
+        / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_50.h5",
         num_input_images=12,
         num_output_images=6,
         train=False,

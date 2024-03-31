@@ -45,7 +45,7 @@ def train_regression(hparams):
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=default_save_path / net.__class__.__name__,
-        filename=net.__class__.__name__ + "_rain_threshhold_50_{epoch}-{val_loss:.6f}",
+        filename=net.__class__.__name__ + "_rain_threshold_50_{epoch}-{val_loss:.6f}",
         save_top_k=-1,
         verbose=False,
         monitor="val_loss",
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     args.kernels_per_layer = 2
     args.use_oversampled_dataset = True
     args.dataset_folder = (
-        ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
+        ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_50.h5"
     )
     # args.resume_from_checkpoint = f"lightning/precip_regression/{args.model}/UNetDS_Attention.ckpt"
 

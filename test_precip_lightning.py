@@ -128,7 +128,7 @@ if __name__ == "__main__":
     # Models that are compared should be in this folder (the ones with the lowest validation error)
     model_folder = ROOT_DIR / "checkpoints" / "comparison"
     data_file = (
-        ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5"
+        ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_50.h5"
     )
 
     # This changes whether to load or to run the model loss calculation
