@@ -14,11 +14,9 @@ The current master branch has since upgraded packages and was refactored. Since 
 If you have problems running the code, feel free to open an issue here on Github.
 
 ## Installing dependencies
-This project is using [poetry](https://python-poetry.org/) as dependency management. Therefore, installing the required dependencies is as easy as this:
+This project is using [rye](https://rye-up.com/) as dependency management. Therefore, installing the required dependencies is as easy as this:
 ```shell
-conda create --name smaat-unet python=3.9
-conda activate smaat-unet
-poetry install
+rye sync --no-lock
 ```
 
 In any case a [requirements.txt](requirements.txt) is also added from the poetry export (`poetry export --without-hashes --output requirements.txt`).

@@ -1,44 +1,46 @@
-[tool.poetry]
+[project]
 name = "smaat-unet"
 version = "0.1.0"
 description = "Code for the paper `SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture`"
-authors = ["Kevin Trebing <Kevin.Trebing@gmx.net>"]
+authors = [{ name = "Kevin Trebing", email = "Kevin.Trebing@gmx.net" }]
 readme = "README.md"
+requires-python = ">= 3.10"
 
-[tool.poetry.dependencies]
-python = ">3.9.7,<4.0"
-tqdm = "^4.65.0"
-torch = [
-    { version = "^2.0.0+cu118", source = "pytorch", platform = "!=darwin" },
-    { version = "^2.0.0", source = "pypi", platform = "darwin" }
+dependencies = [
+    "tqdm~=4.65.0",
+    "torch==2.2.2+cu121",
+    "torchvision>=0.15.1",
+    "torchsummary>=1.5.1",
+    "h5py~=3.8.0",
+    "fastapi~=0.80",
+    "lightning~=2.2.1",
+    "tensorboard~=2.13.0",
+    "pandas~=1.5.3",
+    "tables>=3.9.2",
 ]
-torchvision = [
-    { version = "^0.15.1", source = "pytorch", platform = "!=darwin" },
-    { version = "^0.15.1", source = "pypi", platform = "darwin" },
-]
-torchsummary = "^1.5.1"
-h5py = "^3.8.0"
-fastapi = ">=0.80"
-lightning = {extras = ["extra"], version = "^2.0.1.post0"}
-tensorboard = "^2.13.0"
-pandas = "1.5.3"
-
-
-[tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
-ruff = "^0.0.262"
-mypy = "^1.2.0"
-pre-commit = "^3.2.2"
-
-[[tool.poetry.source]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cu118"
-priority = "explicit"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "black>=23.3.0",
+    "ruff>=0.0.262",
+    "mypy>=1.2.0",
+    "pre-commit>=3.2.2",
+]
+
+[[tool.rye.sources]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/SmaAt-UNet"]
 
 [tool.black]
 line-length = 120
