@@ -19,7 +19,11 @@ This project is using [rye](https://rye-up.com/) as dependency management. There
 rye sync --no-lock
 ```
 
-In any case a [requirements.txt](requirements.txt) is also added from the poetry export (`poetry export --without-hashes --output requirements.txt`).
+In any case a [requirements.txt](requirements.txt) is also added by converting the lock-file from rye:
+```shell
+sed '/^-e/d' requirements.lock > requirements.txt
+sed '/^-e/d' requirements-dev.lock > requirements-dev.txt
+```
 
 Basically, only the following requirements are needed:
 ```

@@ -9,7 +9,6 @@ from lightning.pytorch.callbacks import (
 from lightning.pytorch import loggers
 import argparse
 from models import unet_precip_regression_lightning as unet_regr
-import torch
 from lightning.pytorch.tuner import Tuner
 
 
@@ -53,7 +52,6 @@ def train_regression(hparams, find_batch_size_automatically: bool = False):
         callbacks=[checkpoint_callback, earlystopping_callback, lr_monitor],
         val_check_interval=hparams.val_check_interval,
     )
-
 
     if find_batch_size_automatically:
         tuner = Tuner(trainer)
