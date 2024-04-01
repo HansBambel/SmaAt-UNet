@@ -133,8 +133,10 @@ class Precip_regression_base(UNet_base):
             self.train_dataset,
             batch_size=self.hparams.batch_size,
             sampler=self.train_sampler,
-            num_workers=1,
             pin_memory=True,
+            # The following can/should be tweaked depending on the number of CPU cores
+            num_workers=1,
+            persistent_workers=True,
         )
         return train_loader
 
@@ -143,7 +145,9 @@ class Precip_regression_base(UNet_base):
             self.valid_dataset,
             batch_size=self.hparams.batch_size,
             sampler=self.valid_sampler,
-            num_workers=1,
             pin_memory=True,
+            # The following can/should be tweaked depending on the number of CPU cores
+            num_workers=1,
+            persistent_workers=True,
         )
         return valid_loader
