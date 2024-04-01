@@ -89,5 +89,7 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
 
 
 if __name__ == "__main__":
+    print("Creating dataset with at least 20% of rain pixel in target image")
     create_dataset(input_length=12, image_ahead=6, rain_amount_thresh=0.2)
+    print("Creating dataset with at least 50% of rain pixel in target image")
     create_dataset(input_length=12, image_ahead=6, rain_amount_thresh=0.5)
