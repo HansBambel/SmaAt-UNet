@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # go through test set and calculate acc, precision, recall and F1
     threshold = 0.5  # mm/h
 
-    model_metrics = dict()
+    model_metrics = {}
     # go through models
     for model_file in tqdm(models, desc="Models", leave=True):
         model, model_name = model_classes.get_model_class(model_file)

@@ -86,7 +86,7 @@ class Precip_regression_base(UNet_base):
         return parser
 
     def __init__(self, hparams):
-        super(Precip_regression_base, self).__init__(hparams=hparams)
+        super().__init__(hparams=hparams)
         self.train_dataset = None
         self.valid_dataset = None
         self.train_sampler = None

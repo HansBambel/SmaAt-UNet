@@ -30,8 +30,8 @@ class IoU(metric.Metric):
         else:
             try:
                 self.ignore_index = tuple(ignore_index)
-            except TypeError:
-                raise ValueError("'ignore_index' must be an int or iterable")
+            except TypeError as err:
+                raise ValueError("'ignore_index' must be an int or iterable") from err
 
     def reset(self):
         self.conf_metric.reset()

@@ -88,7 +88,7 @@ def print_persistent_metrics(data_file):
 
 def get_model_losses(model_folder, data_file):
     # Save it to a dict that can be saved (and plotted)
-    test_losses = dict()
+    test_losses = {}
     persistence_loss = print_persistent_metrics(data_file)
     test_losses["Persistence"] = persistence_loss
 

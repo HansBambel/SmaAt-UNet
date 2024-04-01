@@ -1,12 +1,13 @@
-class Metric(object):
-    """Base class for all metrics.
-    From: https://github.com/pytorch/tnt/blob/master/torchnet/meter/meter.py
-    """
+from typing import Protocol
+
+
+class Metric(Protocol):
+    """Base class for all metrics."""
 
     def reset(self):
         pass
 
-    def add(self):
+    def add(self, predicted, target):
         pass
 
     def value(self):

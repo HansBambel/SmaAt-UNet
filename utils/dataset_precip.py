@@ -5,7 +5,7 @@ import numpy as np
 
 class precipitation_maps_h5(Dataset):
     def __init__(self, in_file, num_input_images, num_output_images, train=True, transform=None):
-        super(precipitation_maps_h5, self).__init__()
+        super().__init__()
 
         self.file_name = in_file
         self.n_images, self.nx, self.ny = h5py.File(self.file_name, "r")["train" if train else "test"]["images"].shape
@@ -47,7 +47,7 @@ class precipitation_maps_h5(Dataset):
 
 class precipitation_maps_oversampled_h5(Dataset):
     def __init__(self, in_file, num_input_images, num_output_images, train=True, transform=None):
-        super(precipitation_maps_oversampled_h5, self).__init__()
+        super().__init__()
 
         self.file_name = in_file
         self.samples, _, _, _ = h5py.File(self.file_name, "r")["train" if train else "test"]["images"].shape
@@ -82,7 +82,7 @@ class precipitation_maps_oversampled_h5(Dataset):
 
 class precipitation_maps_classification_h5(Dataset):
     def __init__(self, in_file, num_input_images, img_to_predict, train=True, transform=None):
-        super(precipitation_maps_classification_h5, self).__init__()
+        super().__init__()
 
         self.file_name = in_file
         self.n_images, self.nx, self.ny = h5py.File(self.file_name, "r")["train" if train else "test"]["images"].shape
