@@ -1,4 +1,5 @@
 import torch
+from torch import nn
 
 from root import ROOT_DIR
 from utils import dataset_precip, model_classes
@@ -14,19 +15,30 @@ def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
     # Recall = tp/(tp+fn)
     # Accuracy = (tp+tn)/(tp+fp+tn+fn)
     # F1 = 2 x precision*recall/(precision+recall)
+    loss_func = nn.functional.mse_loss
     with torch.no_grad():
         total_tp = 0
         total_fp = 0
         total_tn = 0
         total_fn = 0
+        loss: torch.Tensor = 0.0
+        loss_denorm: torch.Tensor = 0.0
         for x, y_true in tqdm(test_dl, leave=True):
             # Move data to device
             x = x.to(device)
             y_true = y_true.to(device)
             y_pred = model(x)
-            # denormalize and convert from mm/5min to mm/h
-            y_pred_adj = y_pred.squeeze() * 47.83 * 12
-            y_true_adj = y_true.squeeze() * 47.83 * 12
+            # denormalize
+            y_pred_adj = y_pred.squeeze() * 47.83
+            y_true_adj = y_true.squeeze() * 47.83
+
+            # calc loss
+            loss += loss_func(y_pred.squeeze(), y_true.squeeze(), reduction="sum")
+            loss_denorm += loss_func(y_pred_adj, y_true_adj, reduction="sum")
+
+            # convert from mm/5min to mm/h
+            y_pred_adj *= 12
+            y_true_adj *= 12
             # convert to masks for comparison
             y_pred_mask = y_pred_adj > threshold
             y_true_mask = y_true_adj > threshold
@@ -37,6 +49,10 @@ def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
             total_tn += tn
             total_fn += fn
             # get metrics for sample
+        mse_image = loss / len(test_dl)
+        mse_denormalized_image = loss_denorm / len(test_dl)
+        mse_pixel = mse_denormalized_image / torch.numel(y_true)
+
         precision = total_tp / (total_tp + total_fp)
         recall = total_tp / (total_tp + total_fn)
         accuracy = (total_tp + total_tn) / (total_tp + total_tn + total_fp + total_fn)
@@ -47,7 +63,18 @@ def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
             (total_tp + total_fn) * (total_fn + total_tn) + (total_tp + total_fp) * (total_fp + total_tn)
         )
 
-    return precision, recall, accuracy, f1, csi, far, hss
+    return (
+        mse_image.item(),
+        mse_denormalized_image.item(),
+        mse_pixel.item(),
+        precision,
+        recall,
+        accuracy,
+        f1,
+        csi,
+        far,
+        hss,
+    )
 
 
 def calculate_metrics_for_models(model_folder, threshold: float = 0.5):
@@ -66,9 +93,8 @@ def calculate_metrics_for_models(model_folder, threshold: float = 0.5):
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # The batch_size and num_workers can/should be adapted for the current hardware specs
-    # batch_size=1 and omitting num_workers should be safe
     test_dl = torch.utils.data.DataLoader(
-        dataset, batch_size=1, shuffle=False, pin_memory=True, persistent_workers=True
+        dataset, batch_size=1, shuffle=False, pin_memory=True, num_workers=1, persistent_workers=True
     )
 
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
@@ -81,10 +107,13 @@ def calculate_metrics_for_models(model_folder, threshold: float = 0.5):
         model = model.load_from_checkpoint(model_folder / model_file)
         model.eval()
 
-        precision, recall, accuracy, f1, csi, far, hss = get_metrics_from_model(
-            model, test_dl, threshold, device=device
+        mse_image, mse_denormalized_image, mse_pixel, precision, recall, accuracy, f1, csi, far, hss = (
+            get_metrics_from_model(model, test_dl, threshold, device=device)
         )
         model_metrics[model_name] = {
+            "mse": mse_image,
+            "mse_denormalized_image": mse_denormalized_image,
+            "mse_pixel": mse_pixel,
             "Precision": precision,
             "Recall": recall,
             "Accuracy": accuracy,
@@ -110,5 +139,5 @@ if __name__ == "__main__":
     else:
         model_metrics = calculate_metrics_for_models(model_folder, threshold=threshold)
         with open(test_metrics_file, "w") as f:
-            json.dump(model_metrics, f)
+            json.dump(model_metrics, f, indent=4)
     print(model_metrics)
