@@ -1,9 +1,10 @@
+import json
+
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import pickle
 from tqdm import tqdm
 import lightning.pytorch as pl
 
@@ -43,7 +44,8 @@ def get_persistence_metrics(test_dl, denormalize=True):
     total_fp = 0
     total_tn = 0
     total_fn = 0
-    loss_model, precision, recall, accuracy, f1, csi, far = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    loss_model: torch.Tensor = 0.0
+    precision, recall, accuracy, f1, csi, far = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
     for x, y_true in tqdm(test_dl, leave=False):
         y_pred = x[:, -1, :]
         loss_model += loss_func(y_pred.squeeze() * factor, y_true * factor, reduction="sum") / y_true.size(0)
@@ -72,7 +74,7 @@ def get_persistence_metrics(test_dl, denormalize=True):
     return loss_model, precision, recall, accuracy, f1, csi, far
 
 
-def print_persistent_metrics(data_file):
+def print_persistent_metrics(data_file) -> torch.Tensor:
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
         in_file=data_file, num_input_images=12, num_output_images=6, train=False
     )
@@ -88,9 +90,8 @@ def print_persistent_metrics(data_file):
 
 def get_model_losses(model_folder, data_file):
     # Save it to a dict that can be saved (and plotted)
-    test_losses = {}
     persistence_loss = print_persistent_metrics(data_file)
-    test_losses["Persistence"] = persistence_loss
+    test_losses = {"Persistence": [{"MSE": persistence_loss.item()}]}
 
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
@@ -133,20 +134,18 @@ if __name__ == "__main__":
 
     # This changes whether to load or to run the model loss calculation
     load = False
+    save_file = model_folder / "model_losses_MSE.txt"
     if load:
         # load the losses
-        with open(model_folder / "model_losses_MSE.pkl", "rb") as f_load:
-            test_losses = pickle.load(f_load)
+        with open(save_file) as f_load:
+            test_losses = json.load(f_load)
 
     else:
         test_losses = get_model_losses(model_folder, data_file)
         # Save losses
-        with open(
-            model_folder / "model_losses_MSE.pkl",
-            "wb",
-        ) as f_write:
-            pickle.dump(test_losses, f_write)
+        with open(save_file, "w") as f_write:
+            json.dump(test_losses, f_write, indent=4)
 
     # Plot results
     print(test_losses)
-    # plot_losses(test_losses, loss)
+    # plot_losses(test_losses, "MSE")
