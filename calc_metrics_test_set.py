@@ -15,11 +15,13 @@ def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
     # Recall = tp/(tp+fn)
     # Accuracy = (tp+tn)/(tp+fp+tn+fn)
     # F1 = 2 x precision*recall/(precision+recall)
+    loss_func = nn.functional.mse_loss
     with torch.no_grad():
         total_tp = 0
         total_fp = 0
         total_tn = 0
         total_fn = 0
+        loss: torch.Tensor = 0.0
         loss_denorm: torch.Tensor = 0.0
         for x, y_true in tqdm(test_dl, leave=True):
             # Move data to device
@@ -31,7 +33,7 @@ def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
             y_true_adj = y_true.squeeze() * 47.83
 
             # calc loss
-            loss_func = nn.functional.mse_loss
+            loss += loss_func(y_pred.squeeze(), y_true.squeeze(), reduction="sum")
             loss_denorm += loss_func(y_pred_adj, y_true_adj, reduction="sum")
 
             # convert from mm/5min to mm/h
@@ -47,8 +49,9 @@ def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
             total_tn += tn
             total_fn += fn
             # get metrics for sample
-        mse_image = loss_denorm / len(test_dl)
-        mse_pixel = mse_image / torch.numel(y_true)
+        mse_image = loss / len(test_dl)
+        mse_denormalized_image = loss_denorm / len(test_dl)
+        mse_pixel = mse_denormalized_image / torch.numel(y_true)
 
         precision = total_tp / (total_tp + total_fp)
         recall = total_tp / (total_tp + total_fn)
@@ -60,7 +63,18 @@ def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
             (total_tp + total_fn) * (total_fn + total_tn) + (total_tp + total_fp) * (total_fp + total_tn)
         )
 
-    return mse_image.item(), mse_pixel.item(), precision, recall, accuracy, f1, csi, far, hss
+    return (
+        mse_image.item(),
+        mse_denormalized_image.item(),
+        mse_pixel.item(),
+        precision,
+        recall,
+        accuracy,
+        f1,
+        csi,
+        far,
+        hss,
+    )
 
 
 def calculate_metrics_for_models(model_folder, threshold: float = 0.5):
@@ -93,11 +107,12 @@ def calculate_metrics_for_models(model_folder, threshold: float = 0.5):
         model = model.load_from_checkpoint(model_folder / model_file)
         model.eval()
 
-        mse_image, mse_pixel, precision, recall, accuracy, f1, csi, far, hss = get_metrics_from_model(
-            model, test_dl, threshold, device=device
+        mse_image, mse_denormalized_image, mse_pixel, precision, recall, accuracy, f1, csi, far, hss = (
+            get_metrics_from_model(model, test_dl, threshold, device=device)
         )
         model_metrics[model_name] = {
             "mse": mse_image,
+            "mse_denormalized_image": mse_denormalized_image,
             "mse_pixel": mse_pixel,
             "Precision": precision,
             "Recall": recall,
