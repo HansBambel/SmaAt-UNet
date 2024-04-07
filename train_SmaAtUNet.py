@@ -27,7 +27,7 @@ def fit(
     opt,
     train_dl,
     valid_dl,
-    dev=torch.device("cpu"),
+    dev=None,
     save_every: Optional[int] = None,
     tensorboard: bool = False,
     earlystopping=None,
@@ -39,13 +39,16 @@ def fit(
 
         writer = SummaryWriter(comment=f"{model.__class__.__name__}")
 
+    if dev is None:
+        dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     start_time = time.time()
     best_mIoU = -1.0
     earlystopping_counter = 0
     for epoch in tqdm(range(epochs), desc="Epochs", leave=True):
         model.train()
         train_loss = 0.0
-        for i, (xb, yb) in enumerate(tqdm(train_dl, desc="Batches", leave=False)):
+        for _, (xb, yb) in enumerate(tqdm(train_dl, desc="Batches", leave=False)):
             # for i, (xb, yb) in enumerate(train_dl):
             loss = loss_func(model(xb.to(dev)), yb.to(dev))
             opt.zero_grad()
@@ -95,11 +98,10 @@ def fit(
             earlystopping_counter = 0
 
         else:
-            if earlystopping is not None:
-                earlystopping_counter += 1
-                if earlystopping_counter >= earlystopping:
-                    print(f"Stopping early --> mean IoU has not decreased over {earlystopping} epochs")
-                    break
+            earlystopping_counter += 1
+            if earlystopping is not None and earlystopping_counter >= earlystopping:
+                print(f"Stopping early --> mean IoU has not decreased over {earlystopping} epochs")
+                break
 
         print(
             f"Epoch: {epoch:5d}, Time: {(time.time() - start_time) / 60:.3f} min,"
@@ -115,22 +117,21 @@ def fit(
             writer.add_scalar("Loss/val", val_loss, epoch)
             writer.add_scalar("Metric/mIOU", mean_iou, epoch)
             writer.add_scalar("Parameters/learning_rate", get_lr(opt), epoch)
-        if save_every is not None:
-            if epoch % save_every == 0:
-                # save model
-                torch.save(
-                    {
-                        "model": model,
-                        "epoch": epoch,
-                        "state_dict": model.state_dict(),
-                        "optimizer_state_dict": opt.state_dict(),
-                        # 'scheduler_state_dict': scheduler.state_dict(),
-                        "val_loss": val_loss,
-                        "train_loss": train_loss,
-                        "mIOU": mean_iou,
-                    },
-                    ROOT_DIR / "checkpoints" / f"model_{model.__class__.__name__}_epoch_{epoch}.pt",
-                )
+        if save_every is not None and epoch % save_every == 0:
+            # save model
+            torch.save(
+                {
+                    "model": model,
+                    "epoch": epoch,
+                    "state_dict": model.state_dict(),
+                    "optimizer_state_dict": opt.state_dict(),
+                    # 'scheduler_state_dict': scheduler.state_dict(),
+                    "val_loss": val_loss,
+                    "train_loss": train_loss,
+                    "mIOU": mean_iou,
+                },
+                ROOT_DIR / "checkpoints" / f"model_{model.__class__.__name__}_epoch_{epoch}.pt",
+            )
         if lr_scheduler is not None:
             lr_scheduler.step(mean_iou)
 

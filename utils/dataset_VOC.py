@@ -55,7 +55,7 @@ def decode_segmap(label_mask, plot=False):
     r = label_mask.copy()
     g = label_mask.copy()
     b = label_mask.copy()
-    for ll in range(0, 21):
+    for ll in range(21):
         r[label_mask == ll] = label_colours[ll, 0]
         g[label_mask == ll] = label_colours[ll, 1]
         b[label_mask == ll] = label_colours[ll, 2]
@@ -96,7 +96,7 @@ class VOCSegmentation(Dataset):
     ]
 
     def __init__(self, root: Path, image_set="train", transformations=None, augmentations=False):
-        super(VOCSegmentation, self).__init__()
+        super().__init__()
         assert image_set in ["train", "val", "trainval"]
 
         voc_root = root / "VOC2012"
@@ -106,7 +106,7 @@ class VOCSegmentation(Dataset):
         splits_dir = voc_root / "ImageSets" / "Segmentation"
 
         split_f = splits_dir / (image_set.rstrip("\n") + ".txt")
-        with open(split_f, "r") as f:
+        with open(split_f) as f:
             file_names = [x.strip() for x in f.readlines()]
 
         self.images = [image_dir / (x + ".jpg") for x in file_names]

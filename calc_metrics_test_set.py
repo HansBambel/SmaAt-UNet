@@ -4,11 +4,12 @@ from root import ROOT_DIR
 from utils import dataset_precip, model_classes
 from tqdm import tqdm
 import os
-import pickle
 import numpy as np
+import json
 
 
-def get_metrics_from_model(model, test_dl, threshold=0.5):
+def get_metrics_from_model(model, test_dl, threshold=0.5, device: str = "cpu"):
+    device = torch.device(device)
     # Precision = tp/(tp+fp)
     # Recall = tp/(tp+fn)
     # Accuracy = (tp+tn)/(tp+fp+tn+fn)
@@ -18,7 +19,10 @@ def get_metrics_from_model(model, test_dl, threshold=0.5):
         total_fp = 0
         total_tn = 0
         total_fn = 0
-        for x, y_true in tqdm(test_dl, leave=False):
+        for x, y_true in tqdm(test_dl, leave=True):
+            # Move data to device
+            x = x.to(device)
+            y_true = y_true.to(device)
             y_pred = model(x)
             # denormalize and convert from mm/5min to mm/h
             y_pred_adj = y_pred.squeeze() * 47.83 * 12
@@ -46,33 +50,40 @@ def get_metrics_from_model(model, test_dl, threshold=0.5):
     return precision, recall, accuracy, f1, csi, far, hss
 
 
-if __name__ == "__main__":
+def calculate_metrics_for_models(model_folder, threshold: float = 0.5):
     dataset = dataset_precip.precipitation_maps_oversampled_h5(
         in_file=ROOT_DIR
         / "data"
         / "precipitation"
-        / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshhold_50.h5",
+        / f"train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_{int(threshold*100)}.h5",
         num_input_images=12,
         num_output_images=6,
         train=False,
     )
 
-    test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, pin_memory=True)
+    # Move both the model and the data to the same device
+    # When using a Mac change this to "mps"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    model_folder = ROOT_DIR / "checkpoints" / "comparison"
+    # The batch_size and num_workers can/should be adapted for the current hardware specs
+    # batch_size=1 and omitting num_workers should be safe
+    test_dl = torch.utils.data.DataLoader(
+        dataset, batch_size=1, shuffle=False, pin_memory=True, persistent_workers=True
+    )
+
     models = [m for m in os.listdir(model_folder) if ".ckpt" in m]
 
     # go through test set and calculate acc, precision, recall and F1
-    threshold = 0.5  # mm/h
-
-    model_metrics = dict()
+    model_metrics = {}
     # go through models
     for model_file in tqdm(models, desc="Models", leave=True):
         model, model_name = model_classes.get_model_class(model_file)
         model = model.load_from_checkpoint(model_folder / model_file)
         model.eval()
 
-        precision, recall, accuracy, f1, csi, far, hss = get_metrics_from_model(model, test_dl, threshold)
+        precision, recall, accuracy, f1, csi, far, hss = get_metrics_from_model(
+            model, test_dl, threshold, device=device
+        )
         model_metrics[model_name] = {
             "Precision": precision,
             "Recall": recall,
@@ -83,5 +94,21 @@ if __name__ == "__main__":
             "HSS": hss,
         }
         print(model_name, model_metrics[model_name])
-    with open(model_folder / f"model_metrics_{threshold}mmh.pkl", "wb") as f:
-        pickle.dump(model_metrics, f)
+    return model_metrics
+
+
+if __name__ == "__main__":
+    load_metrics = False
+
+    model_folder = ROOT_DIR / "checkpoints" / "comparison"
+    threshold = 0.5
+
+    test_metrics_file = model_folder / f"model_metrics_{threshold}mmh.txt"
+    if load_metrics:
+        with open(test_metrics_file) as f:
+            model_metrics = json.loads(f.read())
+    else:
+        model_metrics = calculate_metrics_for_models(model_folder, threshold=threshold)
+        with open(test_metrics_file, "w") as f:
+            json.dump(model_metrics, f)
+    print(model_metrics)

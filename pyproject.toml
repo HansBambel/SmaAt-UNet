@@ -1,44 +1,47 @@
-[tool.poetry]
+[project]
 name = "smaat-unet"
 version = "0.1.0"
 description = "Code for the paper `SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture`"
-authors = ["Kevin Trebing <Kevin.Trebing@gmx.net>"]
+authors = [{ name = "Kevin Trebing", email = "Kevin.Trebing@gmx.net" }]
 readme = "README.md"
+requires-python = ">= 3.10"
 
-[tool.poetry.dependencies]
-python = ">3.9.7,<4.0"
-tqdm = "^4.65.0"
-torch = [
-    { version = "^2.0.0+cu118", source = "pytorch", platform = "!=darwin" },
-    { version = "^2.0.0", source = "pypi", platform = "darwin" }
+dependencies = [
+    "tqdm~=4.65.0",
+    "torch==2.2.2+cu121",
+    "torchvision>=0.15.1",
+    "torchsummary>=1.5.1",
+    "h5py~=3.8.0",
+    "fastapi~=0.80",
+    "lightning~=2.2.1",
+    "tensorboard~=2.13.0",
+    "pandas~=1.5.3",
+    "tables>=3.9.2",
+    "matplotlib>=3.8.3",
 ]
-torchvision = [
-    { version = "^0.15.1", source = "pytorch", platform = "!=darwin" },
-    { version = "^0.15.1", source = "pypi", platform = "darwin" },
-]
-torchsummary = "^1.5.1"
-h5py = "^3.8.0"
-fastapi = ">=0.80"
-lightning = {extras = ["extra"], version = "^2.0.1.post0"}
-tensorboard = "^2.13.0"
-pandas = "1.5.3"
-
-
-[tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
-ruff = "^0.0.262"
-mypy = "^1.2.0"
-pre-commit = "^3.2.2"
-
-[[tool.poetry.source]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cu118"
-priority = "explicit"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "black>=23.3.0",
+    "ruff>=0.0.262",
+    "mypy>=1.2.0",
+    "pre-commit>=3.2.2",
+]
+
+[[tool.rye.sources]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/SmaAt-UNet"]
 
 [tool.black]
 line-length = 120
@@ -49,47 +52,54 @@ ignore_missing_imports = true
 
 
 [tool.ruff]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F"]
-ignore = []
-
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
-unfixable = []
-
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Same as Black.
 line-length = 120
 
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle Errors
+    "W",   # pycodestyle Warnings
+    "F",   # pyflakes
+    "UP",  # pyupgrade
+#    "D",   # pydocstyle
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "A",   # flake8-builtins
+    "C90", # mccabe complexity
+    "DJ",  # flake8-django
+    "PIE", # flake8-pie
+#    "SIM", # flake8-simplify
+]
+ignore = [
+    "B905", # length-checking in zip() only introduced with Python 3.10 (PEP618)
+    "UP007",  # Python version 3.9 does not allow writing union types as X | Y
+    "UP038",  # Python version 3.9 does not allow writing union types as X | Y
+    "D202",  # No blank lines allowed after function docstring
+    "D100",  # Missing docstring in public module
+    "D104",  # Missing docstring in public package
+    "D205",  # 1 blank line required between summary line and description
+    "D203",  # One blank line before class docstring
+    "D212",  # Multi-line docstring summary should start at the first line
+    "D213",  # Multi-line docstring summary should start at the second line
+    "D400",  # First line of docstring should end with a period
+    "D404",  # First word of the docstring should not be "This"
+    "D415",  # First line should end with a period, question mark, or exclamation point
+    "DJ001", # Avoid using `null=True` on string-based fields
+]
+exclude = [
+    ".git",
+    ".local",
+    ".cache",
+    ".venv",
+    "./venv",
+    ".vscode",
+    "__pycache__",
+    "docs",
+    "build",
+    "dist",
+    "notebooks",
+    "migrations"
+]
 
-# Assume Python 3.9.
-target-version = "py39"
-
-[tool.ruff.mccabe]
-# Unlike Flake8, default to a complexity level of 10.
-max-complexity = 10
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 12.
+max-complexity = 12

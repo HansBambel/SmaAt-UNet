@@ -1,9 +1,8 @@
 from models import unet_precip_regression_lightning as unet_regr
 import lightning.pytorch as pl
-from typing import Tuple, Type
 
 
-def get_model_class(model_file) -> Tuple[Type[pl.LightningModule], str]:
+def get_model_class(model_file) -> tuple[type[pl.LightningModule], str]:
     # This is for some nice plotting
     if "UNet_Attention" in model_file:
         model_name = "UNet Attention"

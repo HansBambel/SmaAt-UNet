@@ -13,7 +13,7 @@ class SmaAt_UNet(nn.Module):
         bilinear=True,
         reduction_ratio=16,
     ):
-        super(SmaAt_UNet, self).__init__()
+        super().__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         kernels_per_layer = kernels_per_layer

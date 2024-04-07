@@ -33,7 +33,7 @@ class SpaceToDepth(nn.Module):
 
 class DepthwiseSeparableConv(nn.Module):
     def __init__(self, in_channels, output_channels, kernel_size, padding=0, kernels_per_layer=1):
-        super(DepthwiseSeparableConv, self).__init__()
+        super().__init__()
         # In Tensorflow DepthwiseConv2D has depth_multiplier instead of kernels_per_layer
         self.depthwise = nn.Conv2d(
             in_channels,
@@ -52,7 +52,7 @@ class DepthwiseSeparableConv(nn.Module):
 
 class DoubleDense(nn.Module):
     def __init__(self, in_channels, hidden_neurons, output_channels):
-        super(DoubleDense, self).__init__()
+        super().__init__()
         self.dense1 = nn.Linear(in_channels, out_features=hidden_neurons)
         self.dense2 = nn.Linear(in_features=hidden_neurons, out_features=hidden_neurons // 2)
         self.dense3 = nn.Linear(in_features=hidden_neurons // 2, out_features=output_channels)
@@ -89,7 +89,7 @@ class Flatten(nn.Module):
 
 class ChannelAttention(nn.Module):
     def __init__(self, input_channels, reduction_ratio=16):
-        super(ChannelAttention, self).__init__()
+        super().__init__()
         self.input_channels = input_channels
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.max_pool = nn.AdaptiveMaxPool2d(1)
@@ -113,7 +113,7 @@ class ChannelAttention(nn.Module):
 
 class SpatialAttention(nn.Module):
     def __init__(self, kernel_size=7):
-        super(SpatialAttention, self).__init__()
+        super().__init__()
         assert kernel_size in (3, 7), "kernel size must be 3 or 7"
         padding = 3 if kernel_size == 7 else 1
         self.conv = nn.Conv2d(2, 1, kernel_size=kernel_size, padding=padding, bias=False)
@@ -131,7 +131,7 @@ class SpatialAttention(nn.Module):
 
 class CBAM(nn.Module):
     def __init__(self, input_channels, reduction_ratio=16, kernel_size=7):
-        super(CBAM, self).__init__()
+        super().__init__()
         self.channel_att = ChannelAttention(input_channels, reduction_ratio=reduction_ratio)
         self.spatial_att = SpatialAttention(kernel_size=kernel_size)
 

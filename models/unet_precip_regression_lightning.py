@@ -6,7 +6,7 @@ from models.regression_lightning import Precip_regression_base
 
 class UNet(Precip_regression_base):
     def __init__(self, hparams):
-        super(UNet, self).__init__(hparams=hparams)
+        super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
         self.n_classes = self.hparams.n_classes
         self.bilinear = self.hparams.bilinear
@@ -40,7 +40,7 @@ class UNet(Precip_regression_base):
 
 class UNet_Attention(Precip_regression_base):
     def __init__(self, hparams):
-        super(UNet_Attention, self).__init__(hparams=hparams)
+        super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
         self.n_classes = self.hparams.n_classes
         self.bilinear = self.hparams.bilinear
@@ -85,7 +85,7 @@ class UNet_Attention(Precip_regression_base):
 
 class UNetDS(Precip_regression_base):
     def __init__(self, hparams):
-        super(UNetDS, self).__init__(hparams=hparams)
+        super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
         self.n_classes = self.hparams.n_classes
         self.bilinear = self.hparams.bilinear
@@ -120,7 +120,7 @@ class UNetDS(Precip_regression_base):
 
 class UNetDS_Attention(Precip_regression_base):
     def __init__(self, hparams):
-        super(UNetDS_Attention, self).__init__(hparams=hparams)
+        super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
         self.n_classes = self.hparams.n_classes
         self.bilinear = self.hparams.bilinear
@@ -166,7 +166,7 @@ class UNetDS_Attention(Precip_regression_base):
 
 class UNetDS_Attention_4CBAMs(Precip_regression_base):
     def __init__(self, hparams):
-        super(UNetDS_Attention_4CBAMs, self).__init__(hparams=hparams)
+        super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
         self.n_classes = self.hparams.n_classes
         self.bilinear = self.hparams.bilinear

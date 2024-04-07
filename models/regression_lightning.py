@@ -86,7 +86,7 @@ class Precip_regression_base(UNet_base):
         return parser
 
     def __init__(self, hparams):
-        super(Precip_regression_base, self).__init__(hparams=hparams)
+        super().__init__(hparams=hparams)
         self.train_dataset = None
         self.valid_dataset = None
         self.train_sampler = None
@@ -133,8 +133,10 @@ class Precip_regression_base(UNet_base):
             self.train_dataset,
             batch_size=self.hparams.batch_size,
             sampler=self.train_sampler,
-            num_workers=1,
             pin_memory=True,
+            # The following can/should be tweaked depending on the number of CPU cores
+            num_workers=1,
+            persistent_workers=True,
         )
         return train_loader
 
@@ -143,7 +145,9 @@ class Precip_regression_base(UNet_base):
             self.valid_dataset,
             batch_size=self.hparams.batch_size,
             sampler=self.valid_sampler,
-            num_workers=1,
             pin_memory=True,
+            # The following can/should be tweaked depending on the number of CPU cores
+            num_workers=1,
+            persistent_workers=True,
         )
         return valid_loader

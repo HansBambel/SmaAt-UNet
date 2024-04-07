@@ -12,7 +12,6 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
     with h5py.File(
         precipitation_folder / "RAD_NL25_RAC_5min_train_test_2016-2019.h5",
         "r",
-        rdcc_nbytes=1024**3,
     ) as orig_f:
         train_images = orig_f["train"]["images"]
         train_timestamps = orig_f["train"]["timestamps"]
@@ -25,10 +24,10 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
 
         filename = (
             precipitation_folder / f"train_test_2016-2019_input-length_{input_length}_img-"
-            f"ahead_{image_ahead}_rain-threshhold_{int(rain_amount_thresh * 100)}.h5"
+            f"ahead_{image_ahead}_rain-threshold_{int(rain_amount_thresh * 100)}.h5"
         )
 
-        with h5py.File(filename, "w", rdcc_nbytes=1024**3) as f:
+        with h5py.File(filename, "w") as f:
             train_set = f.create_group("train")
             test_set = f.create_group("test")
             train_image_dataset = train_set.create_dataset(
@@ -90,5 +89,7 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
 
 
 if __name__ == "__main__":
+    print("Creating dataset with at least 20% of rain pixel in target image")
     create_dataset(input_length=12, image_ahead=6, rain_amount_thresh=0.2)
+    print("Creating dataset with at least 50% of rain pixel in target image")
     create_dataset(input_length=12, image_ahead=6, rain_amount_thresh=0.5)
