@@ -17,6 +17,7 @@ dependencies = [
     "tensorboard~=2.13.0",
     "pandas~=1.5.3",
     "tables>=3.9.2",
+    "matplotlib>=3.8.3",
 ]
 
 [build-system]
