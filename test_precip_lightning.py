@@ -116,9 +116,9 @@ def get_model_losses(model_folder, data_file):
     return test_losses
 
 
-def plot_losses(test_losses, loss):
+def plot_losses(test_losses, loss: str):
     names = list(test_losses.keys())
-    values = [test_losses[n] for n in test_losses.keys()]
+    values = [v[0][loss] for k, v in test_losses.items()]
     plt.figure()
     # for name in names:
     plt.bar(names, values)
