@@ -70,22 +70,28 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
             ]
             for origin_id, (images, timestamps) in enumerate(origin):
                 image_dataset, timestamp_dataset = datasets[origin_id]
-                first = True
-                for i in tqdm(range(input_length + image_ahead, len(images))):
-                    # If threshold of rain is bigger in the target image: add sequence to dataset
-                    if np.sum(images[i] > 0) >= num_pixels * rain_amount_thresh:
-                        imgs = images[i - (input_length + image_ahead) : i]
-                        timestamps_img = timestamps[i - (input_length + image_ahead) : i]
-                        #                     print(imgs.shape)
-                        #                     print(timestamps_img.shape)
-                        # extend the dataset by 1 and add the entry
-                        if first:
-                            first = False
-                        else:
-                            image_dataset.resize(image_dataset.shape[0] + 1, axis=0)
-                            timestamp_dataset.resize(timestamp_dataset.shape[0] + 1, axis=0)
-                        image_dataset[-1] = imgs
-                        timestamp_dataset[-1] = timestamps_img
+                
+                # Pre-calculate all valid indices that meet the rain threshold
+                sequence_length = input_length + image_ahead
+                valid_indices = []
+                
+                # Use vectorized operations to find valid indices
+                for i in tqdm(range(sequence_length, len(images)), desc="Finding valid indices"):
+                    rain_pixels = np.sum(images[i] > 0)
+                    if rain_pixels >= num_pixels * rain_amount_thresh:
+                        valid_indices.append(i)
+                
+                # Pre-allocate the final dataset size
+                total_sequences = len(valid_indices)
+                image_dataset.resize(total_sequences, axis=0)
+                timestamp_dataset.resize(total_sequences, axis=0)
+                
+                # Batch process the sequences
+                for idx, i in enumerate(tqdm(valid_indices, desc="Creating sequences")):
+                    imgs = images[i - sequence_length : i]
+                    timestamps_img = timestamps[i - sequence_length : i]
+                    image_dataset[idx] = imgs
+                    timestamp_dataset[idx] = timestamps_img
 
 
 if __name__ == "__main__":
