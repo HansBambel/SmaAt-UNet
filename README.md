@@ -14,18 +14,29 @@ The current master branch has since upgraded packages and was refactored. Since 
 If you have problems running the code, feel free to open an issue here on Github.
 
 ## Installing dependencies
-This project is using [rye](https://rye-up.com/) as dependency management. Therefore, installing the required dependencies is as easy as this:
+This project is using [uv](https://docs.astral.sh/uv/) as dependency management. Therefore, installing the required dependencies is as easy as this:
 ```shell
-rye sync --no-lock
+uv sync --frozen
 ```
 
-In any case a [requirements.txt](requirements.txt) is also added by converting the lock-file from rye:
+In any case a [`requirements.txt`](requirements.txt) file are generated from `uv.lock`, which implies that `uv` must be installed in order to perform the export:
 ```shell
-sed '/^-e/d' requirements.lock > requirements.txt
-sed '/^-e/d' requirements-dev.lock > requirements-dev.txt
+uv export --format=requirements-txt --no-dev --no-hashes --no-sources --output-file=requirements.txt
 ```
 
-Basically, only the following requirements are needed:
+A `requirements-dev.txt` file is also generated for development dependencies:
+```shell
+uv export --format=requirements-txt --group dev --no-hashes --no-sources --output-file=requirements-dev.txt
+```
+
+A `requirements-full.txt` file is also generated for all dependencies (including development and additional dependencies):
+```shell
+uv export --format=requirements-txt --all-groups --no-hashes --no-sources --output-file=requirements-full.txt
+```
+
+Alternatively, users can use the existing [`requirements.txt`](requirements.txt), [`requirements-dev.txt`](requirements-dev.txt) and [`requirements-full.txt`](requirements-full.txt) files.
+
+Basically, only the following requirements are needed for the training:
 ```
 tqdm
 torch
@@ -34,6 +45,12 @@ tensorboard
 torchsummary
 h5py
 numpy
+```
+
+Additional requirements are needed for the [testing](###Testing) and [plotting](###Plots):
+```
+matplotlib
+ipykernel
 ```
 
 ---
@@ -56,6 +73,12 @@ It will get handled by [this issue](https://github.com/HansBambel/SmaAt-UNet/iss
 
 ### Plots
 Example code for creating similar plots as in the paper can be found in [plot_examples.ipynb](plot_examples.ipynb).
+
+You might need to make your kernel discoverable so that Jupyter can detect it. To do so, run the following command in your terminal:
+
+```shell
+uv run ipython kernel install --user --env VIRTUAL_ENV=$(pwd)/.venv --name=smaat_unet --diplay-name="SmaAt-UNet Kernel"
+```
 
 ### Precipitation dataset
 The dataset consists of precipitation maps in 5-minute intervals from 2016-2019 resulting in about 420,000 images.

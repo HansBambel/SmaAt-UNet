@@ -4,38 +4,32 @@ version = "0.1.0"
 description = "Code for the paper `SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture`"
 authors = [{ name = "Kevin Trebing", email = "Kevin.Trebing@gmx.net" }]
 readme = "README.md"
-requires-python = ">= 3.10"
-
+requires-python = ">=3.10.11"
 dependencies = [
-    "tqdm~=4.65.0",
-    "torch==2.2.2+cu121",
-    "torchvision>=0.15.1",
+    "h5py>=3.12.1",
+    "lightning>=2.5.0.post0",
+    "numpy>=2.2.3",
+    "tensorboard>=2.19.0",
+    "torch>=2.6.0",
     "torchsummary>=1.5.1",
-    "h5py~=3.8.0",
-    "fastapi~=0.80",
-    "lightning~=2.2.1",
-    "tensorboard~=2.13.0",
-    "pandas~=1.5.3",
-    "tables>=3.9.2",
-    "matplotlib>=3.8.3",
+    "tqdm>=4.67.1",
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.rye]
-managed = true
-dev-dependencies = [
-    "black>=23.3.0",
-    "ruff>=0.0.262",
-    "mypy>=1.2.0",
-    "pre-commit>=3.2.2",
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "mypy>=1.15.0",
+    "pre-commit>=4.1.0",
+    "ruff>=0.9.6",
 ]
-
-[[tool.rye.sources]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cu121"
+scripts = [
+    "ipykernel>=6.29.5",
+    "matplotlib>=3.10.0",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
