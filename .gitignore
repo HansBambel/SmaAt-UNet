@@ -1,7 +1,10 @@
 .idea
+.vscode
 data
 runs
 lightning
 checkpoints
+plots
 .ruff_cache
 .mypy_cache
+__pycache__
