@@ -6,44 +6,42 @@ authors = [{ name = "Kevin Trebing", email = "Kevin.Trebing@gmx.net" }]
 readme = "README.md"
 requires-python = ">=3.10.11"
 dependencies = [
-    "h5py>=3.12.1",
+    "h5py>=3.13.0",
     "lightning>=2.5.0.post0",
     "numpy>=2.2.3",
-    "tensorboard>=2.19.0",
     "torch>=2.6.0",
     "torchsummary>=1.5.1",
     "tqdm>=4.67.1",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [dependency-groups]
 dev = [
-    "black>=25.1.0",
     "mypy>=1.15.0",
     "pre-commit>=4.1.0",
-    "ruff>=0.9.6",
+    "ruff>=0.9.7",
 ]
 scripts = [
     "ipykernel>=6.29.5",
     "matplotlib>=3.10.0",
+    "tensorboard>=2.19.0",
 ]
 
-[tool.hatch.metadata]
-allow-direct-references = true
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/SmaAt-UNet"]
+[tool.uv.sources]
+torchvision = [
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
 
 [tool.black]
 line-length = 120
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10.11"
 ignore_missing_imports = true
-
 
 [tool.ruff]
 line-length = 120
