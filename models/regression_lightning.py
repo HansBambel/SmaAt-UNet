@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 
 
-class UNet_base(pl.LightningModule):
+class UNetBase(pl.LightningModule):
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
@@ -72,10 +72,10 @@ class UNet_base(pl.LightningModule):
         self.log("MSE_denormalized", loss_denorm)
 
 
-class Precip_regression_base(UNet_base):
+class Precip_regression_base(UNetBase):
     @staticmethod
     def add_model_specific_args(parent_parser):
-        parent_parser = UNet_base.add_model_specific_args(parent_parser)
+        parent_parser = UNetBase.add_model_specific_args(parent_parser)
         parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument("--num_input_images", type=int, default=12)
         parser.add_argument("--num_output_images", type=int, default=6)
@@ -151,3 +151,8 @@ class Precip_regression_base(UNet_base):
             persistent_workers=True,
         )
         return valid_loader
+
+
+class PersistenceModel(UNetBase):
+    def forward(self, x):
+        return x[:, -1:, :]  # Select last time step and keep dimension
