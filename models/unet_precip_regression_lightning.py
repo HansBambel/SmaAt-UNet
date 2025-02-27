@@ -38,7 +38,7 @@ class UNet(PrecipRegressionBase):
         return logits
 
 
-class UNet_Attention(PrecipRegressionBase):
+class UNetAttention(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
@@ -118,7 +118,7 @@ class UNetDS(PrecipRegressionBase):
         return logits
 
 
-class UNetDS_Attention(PrecipRegressionBase):
+class UNetDSAttention(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
@@ -164,7 +164,7 @@ class UNetDS_Attention(PrecipRegressionBase):
         return logits
 
 
-class UNetDS_Attention_4CBAMs(PrecipRegressionBase):
+class UNetDSAttention4CBAMs(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels

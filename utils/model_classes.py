@@ -4,21 +4,21 @@ import lightning.pytorch as pl
 
 def get_model_class(model_file) -> tuple[type[pl.LightningModule], str]:
     # This is for some nice plotting
-    if "UNet_Attention" in model_file:
+    if "UNetAttention" in model_file:
         model_name = "UNet Attention"
-        model = unet_regr.UNet_Attention
-    elif "UNetDS_Attention_4kpl" in model_file:
+        model = unet_regr.UNetAttention
+    elif "UNetDSAttention4kpl" in model_file:
         model_name = "UNetDS Attention with 4kpl"
-        model = unet_regr.UNetDS_Attention
-    elif "UNetDS_Attention_1kpl" in model_file:
+        model = unet_regr.UNetDSAttention
+    elif "UNetDSAttention1kpl" in model_file:
         model_name = "UNetDS Attention with 1kpl"
-        model = unet_regr.UNetDS_Attention
-    elif "UNetDS_Attention_4CBAMs" in model_file:
+        model = unet_regr.UNetDSAttention
+    elif "UNetDSAttention4CBAMs" in model_file:
         model_name = "UNetDS Attention 4CBAMs"
-        model = unet_regr.UNetDS_Attention_4CBAMs
-    elif "UNetDS_Attention" in model_file:
+        model = unet_regr.UNetDSAttention4CBAMs
+    elif "UNetDSAttention" in model_file:
         model_name = "SmaAt-UNet"
-        model = unet_regr.UNetDS_Attention
+        model = unet_regr.UNetDSAttention
     elif "UNetDS" in model_file:
         model_name = "UNetDS"
         model = unet_regr.UNetDS

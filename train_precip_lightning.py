@@ -13,10 +13,10 @@ from lightning.pytorch.tuner import Tuner
 
 
 def train_regression(hparams, find_batch_size_automatically: bool = False):
-    if hparams.model == "UNetDS_Attention":
-        net = unet_regr.UNetDS_Attention(hparams=hparams)
-    elif hparams.model == "UNet_Attention":
-        net = unet_regr.UNet_Attention(hparams=hparams)
+    if hparams.model == "UNetDSAttention":
+        net = unet_regr.UNetDSAttention(hparams=hparams)
+    elif hparams.model == "UNetAttention":
+        net = unet_regr.UNetAttention(hparams=hparams)
     elif hparams.model == "UNet":
         net = unet_regr.UNet(hparams=hparams)
     elif hparams.model == "UNetDS":
@@ -69,7 +69,7 @@ def train_regression(hparams, find_batch_size_automatically: bool = False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser = unet_regr.Precip_regression_base.add_model_specific_args(parser)
+    parser = unet_regr.PrecipRegressionBase.add_model_specific_args(parser)
 
     parser.add_argument(
         "--dataset_folder",
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # args.fast_dev_run = True
     args.n_channels = 12
     # args.gpus = 1
-    args.model = "UNetDS_Attention"
+    args.model = "UNetDSAttention"
     args.lr_patience = 4
     args.es_patience = 15
     # args.val_check_interval = 0.25
@@ -97,12 +97,12 @@ if __name__ == "__main__":
     args.dataset_folder = (
         ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_50.h5"
     )
-    # args.resume_from_checkpoint = f"lightning/precip_regression/{args.model}/UNetDS_Attention.ckpt"
+    # args.resume_from_checkpoint = f"lightning/precip_regression/{args.model}/UNetDSAttention.ckpt"
 
     # train_regression(args, find_batch_size_automatically=False)
 
     # All the models below will be trained
-    for m in ["UNet", "UNetDS", "UNet_Attention", "UNetDS_Attention"]:
+    for m in ["UNet", "UNetDS", "UNetAttention", "UNetDSAttention"]:
         args.model = m
         print(f"Start training model: {m}")
         train_regression(args, find_batch_size_automatically=False)

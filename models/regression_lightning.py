@@ -15,7 +15,7 @@ class UNetBase(pl.LightningModule):
             "--model",
             type=str,
             default="UNet",
-            choices=["UNet", "UNetDS", "UNet_Attention", "UNetDS_Attention"],
+            choices=["UNet", "UNetDS", "UNetAttention", "UNetDSAttention", "PersistenceModel"],
         )
         parser.add_argument("--n_channels", type=int, default=12)
         parser.add_argument("--n_classes", type=int, default=1)
