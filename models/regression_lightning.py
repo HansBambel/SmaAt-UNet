@@ -45,9 +45,9 @@ class UNetBase(pl.LightningModule):
     def loss_func(self, y_pred, y_true):
         # Ensure consistent shapes before computing loss
         if y_pred.dim() > y_true.dim():
-            y_pred = y_pred.squeeze(1)  # Remove channel dimension if needed
+            y_pred = y_pred.squeeze(1)
         elif y_true.dim() > y_pred.dim():
-            y_pred = y_pred.unsqueeze(1)  # Add channel dimension if needed
+            y_pred = y_pred.unsqueeze(1)
 
         # reduction="mean" is average of every pixel, but I want average of image
         return nn.functional.mse_loss(y_pred, y_true, reduction="sum") / y_true.size(0)
