@@ -208,7 +208,7 @@ if __name__ == "__main__":
     folder = ROOT_DIR / "data" / "precipitation"
     data = "RAD_NL25_RAC_5min_train_test_2016-2019.h5"
     train_dl, valid_dl = get_train_valid_loader(
-        folder + data,
+        folder / data,
         batch_size=8,
         random_seed=1337,
         num_input_images=12,
