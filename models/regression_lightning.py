@@ -72,7 +72,7 @@ class UNetBase(pl.LightningModule):
         self.log("MSE_denormalized", loss_denorm)
 
 
-class Precip_regression_base(UNetBase):
+class PrecipRegressionBase(UNetBase):
     @staticmethod
     def add_model_specific_args(parent_parser):
         parent_parser = UNetBase.add_model_specific_args(parent_parser)
