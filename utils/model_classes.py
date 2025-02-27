@@ -25,6 +25,9 @@ def get_model_class(model_file) -> tuple[type[pl.LightningModule], str]:
     elif "UNet" in model_file:
         model_name = "UNet"
         model = unet_regr.UNet
+    elif "PersistenceModel" in model_file:
+        model_name = "PersistenceModel"
+        model = unet_regr.PersistenceModel
     else:
         raise NotImplementedError("Model not found")
     return model, model_name

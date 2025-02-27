@@ -43,13 +43,19 @@ class UNetBase(pl.LightningModule):
         return [opt], [scheduler]
 
     def loss_func(self, y_pred, y_true):
+        # Ensure consistent shapes before computing loss
+        if y_pred.dim() > y_true.dim():
+            y_pred = y_pred.squeeze(1)  # Remove channel dimension if needed
+        elif y_true.dim() > y_pred.dim():
+            y_pred = y_pred.unsqueeze(1)  # Add channel dimension if needed
+
         # reduction="mean" is average of every pixel, but I want average of image
         return nn.functional.mse_loss(y_pred, y_true, reduction="sum") / y_true.size(0)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred.squeeze(), y)
+        loss = self.loss_func(y_pred, y)
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
@@ -58,16 +64,16 @@ class UNetBase(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred.squeeze(), y)
+        loss = self.loss_func(y_pred, y)
         self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         """Calculate the loss (MSE per default) on the test set normalized and denormalized."""
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred.squeeze(), y)
+        loss = self.loss_func(y_pred, y)
         factor = 47.83
-        loss_denorm = self.loss_func(y_pred.squeeze() * factor, y * factor)
+        loss_denorm = self.loss_func(y_pred * factor, y * factor)
         self.log("MSE", loss)
         self.log("MSE_denormalized", loss_denorm)
 
@@ -155,4 +161,4 @@ class PrecipRegressionBase(UNetBase):
 
 class PersistenceModel(UNetBase):
     def forward(self, x):
-        return x[:, -1:, :]  # Select last time step and keep dimension
+        return x[:, -1:, :, :]
