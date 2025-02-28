@@ -5,6 +5,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from utils import dataset_precip
 import argparse
 import numpy as np
+from metric.precipitation_metrics import PrecipitationMetrics
 
 
 class UNetBase(pl.LightningModule):
@@ -23,11 +24,15 @@ class UNetBase(pl.LightningModule):
         parser.add_argument("--bilinear", type=bool, default=True)
         parser.add_argument("--reduction_ratio", type=int, default=16)
         parser.add_argument("--lr_patience", type=int, default=5)
+        parser.add_argument("--threshold", type=float, default=0.5)
         return parser
 
     def __init__(self, hparams):
         super().__init__()
         self.save_hyperparameters(hparams)
+        self.precip_metrics = PrecipitationMetrics(
+            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+        )
 
     def forward(self, x):
         pass
@@ -68,14 +73,30 @@ class UNetBase(pl.LightningModule):
         self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
-        """Calculate the loss (MSE per default) on the test set normalized and denormalized."""
+        """Calculate the loss (MSE per default) and other metrics on the test set normalized and denormalized."""
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred, y)
-        factor = 47.83
-        loss_denorm = self.loss_func(y_pred * factor, y * factor)
-        self.log("MSE", loss)
-        self.log("MSE_denormalized", loss_denorm)
+
+                # Update the precipitation metrics
+        self.precip_metrics.update(y_pred, y)
+
+        #TODO: Remove once approved
+        # loss = self.loss_func(y_pred, y)
+        # factor = 47.83
+        # loss_denorm = self.loss_func(y_pred * factor, y * factor)
+        # self.log("MSE", loss)
+        # self.log("MSE_denormalized", loss_denorm)
+    
+    def on_test_epoch_end(self):
+        """Compute and log all metrics at the end of the test epoch."""
+        metrics = self.precip_metrics.compute()
+        
+        # Log all metrics
+        for name, value in metrics.items():
+            self.log(name, value)
+        
+        # Reset the metrics for the next test epoch
+        self.precip_metrics.reset()
 
 
 class PrecipRegressionBase(UNetBase):
