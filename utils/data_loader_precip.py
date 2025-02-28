@@ -3,6 +3,7 @@ import numpy as np
 from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 from utils import dataset_precip
+from root import ROOT_DIR
 
 
 # Taken from: https://gist.github.com/kevinzakka/d33bf8d6c7f06a9d8c76d97a7879f5cb
@@ -204,10 +205,10 @@ def get_test_loader(
 
 
 if __name__ == "__main__":
-    folder = "C:/Users/hans-/Documents/weather_prediction/data/precipitation/"
+    folder = ROOT_DIR / "data" / "precipitation"
     data = "RAD_NL25_RAC_5min_train_test_2016-2019.h5"
     train_dl, valid_dl = get_train_valid_loader(
-        folder + data,
+        folder / data,
         batch_size=8,
         random_seed=1337,
         num_input_images=12,

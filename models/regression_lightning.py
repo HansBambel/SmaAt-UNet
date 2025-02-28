@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 
 
-class UNet_base(pl.LightningModule):
+class UNetBase(pl.LightningModule):
     @staticmethod
     def add_model_specific_args(parent_parser):
         parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
@@ -15,7 +15,7 @@ class UNet_base(pl.LightningModule):
             "--model",
             type=str,
             default="UNet",
-            choices=["UNet", "UNetDS", "UNet_Attention", "UNetDS_Attention"],
+            choices=["UNet", "UNetDS", "UNetAttention", "UNetDSAttention", "PersistenceModel"],
         )
         parser.add_argument("--n_channels", type=int, default=12)
         parser.add_argument("--n_classes", type=int, default=1)
@@ -43,13 +43,19 @@ class UNet_base(pl.LightningModule):
         return [opt], [scheduler]
 
     def loss_func(self, y_pred, y_true):
+        # Ensure consistent shapes before computing loss
+        if y_pred.dim() > y_true.dim():
+            y_pred = y_pred.squeeze(1)
+        elif y_true.dim() > y_pred.dim():
+            y_pred = y_pred.unsqueeze(1)
+
         # reduction="mean" is average of every pixel, but I want average of image
         return nn.functional.mse_loss(y_pred, y_true, reduction="sum") / y_true.size(0)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred.squeeze(), y)
+        loss = self.loss_func(y_pred, y)
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
@@ -58,24 +64,24 @@ class UNet_base(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred.squeeze(), y)
+        loss = self.loss_func(y_pred, y)
         self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         """Calculate the loss (MSE per default) on the test set normalized and denormalized."""
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred.squeeze(), y)
+        loss = self.loss_func(y_pred, y)
         factor = 47.83
-        loss_denorm = self.loss_func(y_pred.squeeze() * factor, y * factor)
+        loss_denorm = self.loss_func(y_pred * factor, y * factor)
         self.log("MSE", loss)
         self.log("MSE_denormalized", loss_denorm)
 
 
-class Precip_regression_base(UNet_base):
+class PrecipRegressionBase(UNetBase):
     @staticmethod
     def add_model_specific_args(parent_parser):
-        parent_parser = UNet_base.add_model_specific_args(parent_parser)
+        parent_parser = UNetBase.add_model_specific_args(parent_parser)
         parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument("--num_input_images", type=int, default=12)
         parser.add_argument("--num_output_images", type=int, default=6)
@@ -151,3 +157,8 @@ class Precip_regression_base(UNet_base):
             persistent_workers=True,
         )
         return valid_loader
+
+
+class PersistenceModel(UNetBase):
+    def forward(self, x):
+        return x[:, -1:, :, :]

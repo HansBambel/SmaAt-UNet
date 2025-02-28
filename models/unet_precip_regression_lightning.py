@@ -1,10 +1,10 @@
 from models.unet_parts import Down, DoubleConv, Up, OutConv
 from models.unet_parts_depthwise_separable import DoubleConvDS, UpDS, DownDS
 from models.layers import CBAM
-from models.regression_lightning import Precip_regression_base
+from models.regression_lightning import PrecipRegressionBase, PersistenceModel
 
 
-class UNet(Precip_regression_base):
+class UNet(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
@@ -38,7 +38,7 @@ class UNet(Precip_regression_base):
         return logits
 
 
-class UNet_Attention(Precip_regression_base):
+class UNetAttention(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
@@ -83,7 +83,7 @@ class UNet_Attention(Precip_regression_base):
         return logits
 
 
-class UNetDS(Precip_regression_base):
+class UNetDS(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
@@ -118,7 +118,7 @@ class UNetDS(Precip_regression_base):
         return logits
 
 
-class UNetDS_Attention(Precip_regression_base):
+class UNetDSAttention(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
@@ -164,7 +164,7 @@ class UNetDS_Attention(Precip_regression_base):
         return logits
 
 
-class UNetDS_Attention_4CBAMs(Precip_regression_base):
+class UNetDSAttention4CBAMs(PrecipRegressionBase):
     def __init__(self, hparams):
         super().__init__(hparams=hparams)
         self.n_channels = self.hparams.n_channels
