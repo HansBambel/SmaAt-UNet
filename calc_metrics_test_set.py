@@ -82,7 +82,7 @@ def run_experiments(model_folder, data_file, threshold=0.5):
     test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=1, shuffle=False, pin_memory=True, persistent_workers=True)
     
     # Create trainer with device specification
-    trainer = pl.Trainer(logger=False, enable_checkpointing=False, accelerator='gpu' if torch.cuda.is_available() else 'cpu')
+    trainer = pl.Trainer(logger=False, enable_checkpointing=False, accelerator=device)
 
     # Find all models in the model folder
     models = ["PersistenceModel"] + [f for f in os.listdir(model_folder) if f.endswith(".ckpt")]
