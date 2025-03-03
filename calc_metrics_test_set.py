@@ -126,12 +126,7 @@ if __name__ == "__main__":
     file_type = args.file_type
     
     model_folder = ROOT_DIR / "checkpoints" / "comparison" if args.model_folder is None else args.model_folder
-    if threshold == 0.2:
-        data_file = ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_20.h5"
-    elif threshold == 0.5:
-        data_file = ROOT_DIR / "data" / "precipitation" / "train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_50.h5"
-    else:
-        raise ValueError(f"Threshold {threshold} not supported")
+    data_file = ROOT_DIR / "data" / "precipitation" / f"train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_{int(threshold*100)}.h5"
     
     # Load metrics if available
     file_name = f"model_metrics_{threshold}.{file_type}"
