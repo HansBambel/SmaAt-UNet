@@ -9,6 +9,7 @@ dependencies = [
     "h5py>=3.13.0",
     "lightning>=2.5.0.post0",
     "numpy>=2.2.3",
+    "tensorboard>=2.19.0",
     "torch>=2.6.0",
     "torchsummary>=1.5.1",
     "tqdm>=4.67.1",
@@ -23,7 +24,6 @@ dev = [
 scripts = [
     "ipykernel>=6.29.5",
     "matplotlib>=3.10.0",
-    "tensorboard>=2.19.0",
 ]
 
 [[tool.uv.index]]

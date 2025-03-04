@@ -19,6 +19,11 @@ This project is using [uv](https://docs.astral.sh/uv/) as dependency management.
 uv sync --frozen
 ```
 
+If you have Nvidia GPU(s) that support CUDA, and running the command above have not installed the torch with CUDA support, you can install the relevant dependencies with the following command:
+```shell
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+```
+
 In any case a [`requirements.txt`](requirements.txt) file are generated from `uv.lock`, which implies that `uv` must be installed in order to perform the export:
 ```shell
 uv export --format=requirements-txt --no-dev --no-hashes --no-sources --output-file=requirements.txt
