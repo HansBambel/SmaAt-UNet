@@ -1,5 +1,6 @@
 import lightning.pytorch as pl
-from torch import nn, optim
+import torch
+from torch import nn, optim, Tensor
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from utils import dataset_precip
@@ -30,7 +31,13 @@ class UNetBase(pl.LightningModule):
     def __init__(self, hparams):
         super().__init__()
         self.save_hyperparameters(hparams)
-        self.precip_metrics = PrecipitationMetrics(
+        self.train_metrics = PrecipitationMetrics(
+            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+        )
+        self.val_metrics = PrecipitationMetrics(
+            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+        )
+        self.test_metrics = PrecipitationMetrics(
             threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
         )
 
@@ -64,6 +71,10 @@ class UNetBase(pl.LightningModule):
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+
+        # Update training metrics with detached tensors
+        self.train_metrics.update(y_pred.detach(), y.detach())
+        
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -71,32 +82,74 @@ class UNetBase(pl.LightningModule):
         y_pred = self(x)
         loss = self.loss_func(y_pred, y)
         self.log("val_loss", loss, prog_bar=True)
+        
+        # Update validation metrics with detached tensors
+        self.val_metrics.update(y_pred.detach(), y.detach())
+        
 
     def test_step(self, batch, batch_idx):
         """Calculate the loss (MSE per default) and other metrics on the test set normalized and denormalized."""
         x, y = batch
         y_pred = self(x)
 
-                # Update the precipitation metrics
-        self.precip_metrics.update(y_pred, y)
-
-        #TODO: Remove once approved
-        # loss = self.loss_func(y_pred, y)
-        # factor = 47.83
-        # loss_denorm = self.loss_func(y_pred * factor, y * factor)
-        # self.log("MSE", loss)
-        # self.log("MSE_denormalized", loss_denorm)
+        # Update the test metrics
+        self.test_metrics.update(y_pred.detach(), y.detach())
     
     def on_test_epoch_end(self):
         """Compute and log all metrics at the end of the test epoch."""
-        metrics = self.precip_metrics.compute()
+        test_metrics_dict = self.test_metrics.compute()
         
         # Log all metrics
-        for name, value in metrics.items():
-            self.log(name, value)
+        for name, value in test_metrics_dict.items():
+            self.log(f"test_{name}", value)
+        
+        # Print all metrics in one line
+        metrics_str = " | ".join([f"{name}: {value.item() if isinstance(value, Tensor) else value:.4f}" 
+                                 for name, value in test_metrics_dict.items() 
+                                 if not (isinstance(value, Tensor) and torch.isnan(value)) and 
+                                    not (not isinstance(value, Tensor) and np.isnan(value))])
+        print(f"\n\nTEST METRICS: {metrics_str}")
         
         # Reset the metrics for the next test epoch
-        self.precip_metrics.reset()
+        self.test_metrics.reset()
+
+    def on_train_epoch_end(self):
+        """Compute and log all metrics at the end of the training epoch."""
+        train_metrics_dict = self.train_metrics.compute()
+        
+        # Log all metrics with train_ prefix
+        for name, value in train_metrics_dict.items():
+            # Add prog_bar=True to show in progress bar and logger=True to ensure logging
+            self.log(f"train_{name}", value, prog_bar=True, logger=True)
+        
+        # Print all metrics in one line
+        metrics_str = " | ".join([f"{name}: {value.item() if isinstance(value, Tensor) else value:.4f}" 
+                                 for name, value in train_metrics_dict.items() 
+                                 if not (isinstance(value, Tensor) and torch.isnan(value)) and 
+                                    not (not isinstance(value, Tensor) and np.isnan(value))])
+        print(f"\n\nEpoch {self.current_epoch} - TRAIN METRICS: {metrics_str}")
+        
+        # Reset the metrics for the next training epoch
+        self.train_metrics.reset()
+
+    def on_validation_epoch_end(self):
+        """Compute and log all metrics at the end of the validation epoch."""
+        val_metrics_dict = self.val_metrics.compute()
+        
+        # Log all metrics with val_ prefix
+        for name, value in val_metrics_dict.items():
+            # Add prog_bar=True to show in progress bar and logger=True to ensure logging
+            self.log(f"val_{name}", value, prog_bar=True, logger=True)
+        
+        # Print all metrics in one line
+        metrics_str = " | ".join([f"{name}: {value.item() if isinstance(value, Tensor) else value:.4f}" 
+                                 for name, value in val_metrics_dict.items() 
+                                 if not (isinstance(value, Tensor) and torch.isnan(value)) and 
+                                    not (not isinstance(value, Tensor) and np.isnan(value))])
+        print(f"\n\nEpoch {self.current_epoch} - VAL METRICS: {metrics_str}")
+        
+        # Reset the metrics for the next validation epoch
+        self.val_metrics.reset()
 
 
 class PrecipRegressionBase(UNetBase):

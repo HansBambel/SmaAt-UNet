@@ -42,9 +42,10 @@ class PrecipitationMetrics(Metric):
             preds: Model predictions (normalized)
             target: Ground truth (normalized)
         """
-        # Move tensors to the same device as the metric states
-        preds = preds.to(self.device)
-        target = target.to(self.device)
+        # Check for NaN values
+        if torch.isnan(preds).any() or torch.isnan(target).any():
+            print("Warning: NaN values detected in predictions or targets")
+            return
         
         # Make sure preds and target have the same shape
         if preds.shape != target.shape:
@@ -60,35 +61,38 @@ class PrecipitationMetrics(Metric):
         batch_size = target.size(0)
         loss = torch.nn.functional.mse_loss(preds, target, reduction="sum") / batch_size
         self.total_loss += loss
-        self.total_samples += 1
+        self.total_samples += batch_size  # Use batch_size instead of 1
         self.total_pixels += target.numel()
-        
+
         # Denormalize if needed
         if self.denormalize:
-            preds_denorm = preds * self.factor
-            target_denorm = target * self.factor
-            
+            preds_updated = preds * self.factor
+            target_updated = target * self.factor
+
             # Calculate denormalized MSE loss
-            loss_denorm = torch.nn.functional.mse_loss(preds_denorm, target_denorm, reduction="sum") / batch_size
+            loss_denorm = torch.nn.functional.mse_loss(preds_updated, target_updated, reduction="sum") / batch_size
             self.total_loss_denorm += loss_denorm
+        else:
+            preds_updated = preds
+            target_updated = target
             
-            # Convert to mm/h for classification metrics (multiply by 12 for 5min to hourly rate)
-            preds_hourly = preds_denorm * 12
-            target_hourly = target_denorm * 12
-            
-            # Apply threshold to get binary masks
-            preds_mask = preds_hourly > self.threshold
-            target_mask = target_hourly > self.threshold
-            
-            # Compute confusion matrix
-            confusion = target_mask.view(-1) * 2 + preds_mask.view(-1)
-            bincount = torch.bincount(confusion, minlength=4)
-            
-            # Update confusion matrix states
-            self.total_tn += bincount[0]
-            self.total_fp += bincount[1]
-            self.total_fn += bincount[2]
-            self.total_tp += bincount[3]
+        # Convert to mm/h for classification metrics (multiply by 12 for 5min to hourly rate)
+        preds_hourly = preds_updated * 12
+        target_hourly = target_updated * 12
+        
+        # Apply threshold to get binary masks
+        preds_mask = preds_hourly > self.threshold
+        target_mask = target_hourly > self.threshold
+        
+        # Compute confusion matrix
+        confusion = target_mask.view(-1) * 2 + preds_mask.view(-1)
+        bincount = torch.bincount(confusion, minlength=4)
+        
+        # Update confusion matrix states
+        self.total_tn += bincount[0]
+        self.total_fp += bincount[1]
+        self.total_fn += bincount[2]
+        self.total_tp += bincount[3]
     
     def compute(self):
         """
