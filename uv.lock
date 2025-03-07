@@ -1804,6 +1804,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "h5py" },
     { name = "lightning" },
+    { name = "matplotlib" },
     { name = "numpy" },
     { name = "tensorboard" },
     { name = "torch" },
@@ -1819,13 +1820,13 @@ dev = [
 ]
 scripts = [
     { name = "ipykernel" },
-    { name = "matplotlib" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "h5py", specifier = ">=3.13.0" },
     { name = "lightning", specifier = ">=2.5.0.post0" },
+    { name = "matplotlib", specifier = ">=3.10.0" },
     { name = "numpy", specifier = ">=2.2.3" },
     { name = "tensorboard", specifier = ">=2.19.0" },
     { name = "torch", specifier = ">=2.6.0" },
@@ -1839,10 +1840,7 @@ dev = [
     { name = "pre-commit", specifier = ">=4.1.0" },
     { name = "ruff", specifier = ">=0.9.7" },
 ]
-scripts = [
-    { name = "ipykernel", specifier = ">=6.29.5" },
-    { name = "matplotlib", specifier = ">=3.10.0" },
-]
+scripts = [{ name = "ipykernel", specifier = ">=6.29.5" }]
 
 [[package]]
 name = "stack-data"
