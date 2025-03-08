@@ -1,11 +1,13 @@
 import lightning.pytorch as pl
-from torch import nn, optim
+import torch
+from torch import nn, optim, Tensor
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from utils import dataset_precip
 import argparse
 import numpy as np
-
+from metric.precipitation_metrics import PrecipitationMetrics
+from utils.formatting import make_metrics_str
 
 class UNetBase(pl.LightningModule):
     @staticmethod
@@ -23,11 +25,21 @@ class UNetBase(pl.LightningModule):
         parser.add_argument("--bilinear", type=bool, default=True)
         parser.add_argument("--reduction_ratio", type=int, default=16)
         parser.add_argument("--lr_patience", type=int, default=5)
+        parser.add_argument("--threshold", type=float, default=0.5)
         return parser
 
     def __init__(self, hparams):
         super().__init__()
         self.save_hyperparameters(hparams)
+        self.train_metrics = PrecipitationMetrics(
+            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+        )
+        self.val_metrics = PrecipitationMetrics(
+            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+        )
+        self.test_metrics = PrecipitationMetrics(
+            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+        )
 
     def forward(self, x):
         pass
@@ -56,9 +68,12 @@ class UNetBase(pl.LightningModule):
         x, y = batch
         y_pred = self(x)
         loss = self.loss_func(y_pred, y)
-        # logs metrics for each training_step,
-        # and the average across the epoch, to the progress bar and logger
+
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+
+        # Update training metrics with detached tensors
+        self.train_metrics.update(y_pred.detach(), y.detach())
+        
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -66,16 +81,41 @@ class UNetBase(pl.LightningModule):
         y_pred = self(x)
         loss = self.loss_func(y_pred, y)
         self.log("val_loss", loss, prog_bar=True)
+        
+        # Update validation metrics with detached tensors
+        self.val_metrics.update(y_pred.detach(), y.detach())
 
     def test_step(self, batch, batch_idx):
-        """Calculate the loss (MSE per default) on the test set normalized and denormalized."""
+        """Calculate the loss (MSE per default) and other metrics on the test set normalized and denormalized."""
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_func(y_pred, y)
-        factor = 47.83
-        loss_denorm = self.loss_func(y_pred * factor, y * factor)
-        self.log("MSE", loss)
-        self.log("MSE_denormalized", loss_denorm)
+
+        # Update the test metrics
+        self.test_metrics.update(y_pred.detach(), y.detach())
+    
+    def on_test_epoch_end(self):
+        """Compute and log all metrics at the end of the test epoch."""
+        test_metrics_dict = self.test_metrics.compute()
+        
+        # Print all metrics in one line
+        print(f"\n\nEpoch {self.current_epoch} - Test Metrics: {make_metrics_str(test_metrics_dict)}")
+        
+        # Reset the metrics for the next test epoch
+        self.test_metrics.reset()
+
+    def on_train_epoch_end(self):
+        """Compute and log all metrics at the end of the training epoch."""
+        train_metrics_dict = self.train_metrics.compute()
+        
+        print(f"\n\nEpoch {self.current_epoch} - Train Metrics: {make_metrics_str(train_metrics_dict)}")
+        self.train_metrics.reset()
+
+    def on_validation_epoch_end(self):
+        """Compute and log all metrics at the end of the validation epoch."""
+        val_metrics_dict = self.val_metrics.compute()
+        
+        print(f"\n\nEpoch {self.current_epoch} - Validation Metrics: {make_metrics_str(val_metrics_dict)}")
+        self.val_metrics.reset()
 
 
 class PrecipRegressionBase(UNetBase):
