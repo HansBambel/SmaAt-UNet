@@ -7,7 +7,7 @@ from utils import dataset_precip
 import argparse
 import numpy as np
 from metric.precipitation_metrics import PrecipitationMetrics
-
+from utils.formatting import make_metrics_str
 
 class UNetBase(pl.LightningModule):
     @staticmethod
@@ -68,8 +68,7 @@ class UNetBase(pl.LightningModule):
         x, y = batch
         y_pred = self(x)
         loss = self.loss_func(y_pred, y)
-        # logs metrics for each training_step,
-        # and the average across the epoch, to the progress bar and logger
+
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
 
         # Update training metrics with detached tensors
@@ -85,7 +84,6 @@ class UNetBase(pl.LightningModule):
         
         # Update validation metrics with detached tensors
         self.val_metrics.update(y_pred.detach(), y.detach())
-        
 
     def test_step(self, batch, batch_idx):
         """Calculate the loss (MSE per default) and other metrics on the test set normalized and denormalized."""
@@ -99,16 +97,8 @@ class UNetBase(pl.LightningModule):
         """Compute and log all metrics at the end of the test epoch."""
         test_metrics_dict = self.test_metrics.compute()
         
-        # Log all metrics
-        for name, value in test_metrics_dict.items():
-            self.log(f"test_{name}", value)
-        
         # Print all metrics in one line
-        metrics_str = " | ".join([f"{name}: {value.item() if isinstance(value, Tensor) else value:.4f}" 
-                                 for name, value in test_metrics_dict.items() 
-                                 if not (isinstance(value, Tensor) and torch.isnan(value)) and 
-                                    not (not isinstance(value, Tensor) and np.isnan(value))])
-        print(f"\n\nTEST METRICS: {metrics_str}")
+        print(f"\n\nEpoch {self.current_epoch} - Test Metrics: {make_metrics_str(test_metrics_dict)}")
         
         # Reset the metrics for the next test epoch
         self.test_metrics.reset()
@@ -117,38 +107,14 @@ class UNetBase(pl.LightningModule):
         """Compute and log all metrics at the end of the training epoch."""
         train_metrics_dict = self.train_metrics.compute()
         
-        # Log all metrics with train_ prefix
-        for name, value in train_metrics_dict.items():
-            # Add prog_bar=True to show in progress bar and logger=True to ensure logging
-            self.log(f"train_{name}", value, prog_bar=True, logger=True)
-        
-        # Print all metrics in one line
-        metrics_str = " | ".join([f"{name}: {value.item() if isinstance(value, Tensor) else value:.4f}" 
-                                 for name, value in train_metrics_dict.items() 
-                                 if not (isinstance(value, Tensor) and torch.isnan(value)) and 
-                                    not (not isinstance(value, Tensor) and np.isnan(value))])
-        print(f"\n\nEpoch {self.current_epoch} - TRAIN METRICS: {metrics_str}")
-        
-        # Reset the metrics for the next training epoch
+        print(f"\n\nEpoch {self.current_epoch} - Train Metrics: {make_metrics_str(train_metrics_dict)}")
         self.train_metrics.reset()
 
     def on_validation_epoch_end(self):
         """Compute and log all metrics at the end of the validation epoch."""
         val_metrics_dict = self.val_metrics.compute()
         
-        # Log all metrics with val_ prefix
-        for name, value in val_metrics_dict.items():
-            # Add prog_bar=True to show in progress bar and logger=True to ensure logging
-            self.log(f"val_{name}", value, prog_bar=True, logger=True)
-        
-        # Print all metrics in one line
-        metrics_str = " | ".join([f"{name}: {value.item() if isinstance(value, Tensor) else value:.4f}" 
-                                 for name, value in val_metrics_dict.items() 
-                                 if not (isinstance(value, Tensor) and torch.isnan(value)) and 
-                                    not (not isinstance(value, Tensor) and np.isnan(value))])
-        print(f"\n\nEpoch {self.current_epoch} - VAL METRICS: {metrics_str}")
-        
-        # Reset the metrics for the next validation epoch
+        print(f"\n\nEpoch {self.current_epoch} - Validation Metrics: {make_metrics_str(val_metrics_dict)}")
         self.val_metrics.reset()
 
 
