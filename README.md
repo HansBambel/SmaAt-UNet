@@ -46,15 +46,15 @@ Basically, only the following requirements are needed for the training:
 tqdm
 torch
 lightning
+matplotlib
 tensorboard
 torchsummary
 h5py
 numpy
 ```
 
-Additional requirements are needed for the [testing](###Testing) and [plotting](###Plots):
+Additional requirements are needed for the [testing](###Testing):
 ```
-matplotlib
 ipykernel
 ```
 
