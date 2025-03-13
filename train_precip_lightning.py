@@ -29,11 +29,13 @@ def train_regression(hparams, find_batch_size_automatically: bool = False):
     checkpoint_callback = ModelCheckpoint(
         dirpath=default_save_path / net.__class__.__name__,
         filename=net.__class__.__name__ + "_rain_threshold_50_{epoch}-{val_loss:.6f}",
-        save_top_k=-1,
+        save_top_k=1,
+        save_last=True,
         verbose=False,
         monitor="val_loss",
         mode="min",
     )
+    
     lr_monitor = LearningRateMonitor()
     tb_logger = loggers.TensorBoardLogger(save_dir=default_save_path, name=net.__class__.__name__)
 
