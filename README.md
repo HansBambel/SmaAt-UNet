@@ -1,6 +1,9 @@
 # SmaAt-UNet
 Code for the Paper "SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture" [Arxiv-link](https://arxiv.org/abs/2007.04417), [Elsevier-link](https://www.sciencedirect.com/science/article/pii/S0167865521000556?via%3Dihub)
 
+Other relevant publications:[Project][https://sites.google.com/view/siamak-mehrkanoon/projects/weather-elements-nowcasting]. 
+
+
 ![SmaAt-UNet](SmaAt-UNet.png)
 
 The proposed SmaAt-UNet can be found in the model-folder under [SmaAt_UNet](models/SmaAt_UNet.py).
@@ -112,4 +115,10 @@ author = {Kevin Trebing and Tomasz Staǹczyk and Siamak Mehrkanoon},
 keywords = {Domain adaptation, neural networks, kernel methods, coupling regularization},
 abstract = {Weather forecasting is dominated by numerical weather prediction that tries to model accurately the physical properties of the atmosphere. A downside of numerical weather prediction is that it is lacking the ability for short-term forecasts using the latest available information. By using a data-driven neural network approach we show that it is possible to produce an accurate precipitation nowcast. To this end, we propose SmaAt-UNet, an efficient convolutional neural networks-based on the well known UNet architecture equipped with attention modules and depthwise-separable convolutions. We evaluate our approaches on a real-life datasets using precipitation maps from the region of the Netherlands and binary images of cloud coverage of France. The experimental results show that in terms of prediction performance, the proposed model is comparable to other examined models while only using a quarter of the trainable parameters.}
 }
+
 ```
+
+### Other relevant publications
+
+Your project might also benefit from exploring our other relevant publications:[Project][https://sites.google.com/view/siamak-mehrkanoon/projects/weather-elements-nowcasting]. Please consider citing them if you find them useful.<img width="468" height="28" alt="image" src="https://github.com/user-attachments/assets/43e9daf0-8f87-4de4-8a72-8fc2b33d6be7" />
+
