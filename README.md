@@ -1,7 +1,7 @@
 # SmaAt-UNet
 Code for the Paper "SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture" [Arxiv-link](https://arxiv.org/abs/2007.04417), [Elsevier-link](https://www.sciencedirect.com/science/article/pii/S0167865521000556?via%3Dihub)
 
-Other relevant publications:[Project][https://sites.google.com/view/siamak-mehrkanoon/projects/weather-elements-nowcasting]. 
+Other relevant publications: [Weather Elements Nowcasting](https://sites.google.com/view/siamak-mehrkanoon/projects/weather-elements-nowcasting). 
 
 
 ![SmaAt-UNet](SmaAt-UNet.png)
@@ -120,5 +120,5 @@ abstract = {Weather forecasting is dominated by numerical weather prediction tha
 
 ### Other relevant publications
 
-Your project might also benefit from exploring our other relevant publications:[Project][https://sites.google.com/view/siamak-mehrkanoon/projects/weather-elements-nowcasting]. Please consider citing them if you find them useful.<img width="468" height="28" alt="image" src="https://github.com/user-attachments/assets/43e9daf0-8f87-4de4-8a72-8fc2b33d6be7" />
+Your project might also benefit from exploring our other relevant publications: [Weather Elements Nowcasting](https://sites.google.com/view/siamak-mehrkanoon/projects/weather-elements-nowcasting). Please consider citing them if you find them useful.
 
