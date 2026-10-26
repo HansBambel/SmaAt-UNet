@@ -1,6 +1,6 @@
+# ty: ignore[invalid-argument-type, unresolved-attribute]
 import lightning.pytorch as pl
-import torch
-from torch import nn, optim, Tensor
+from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from utils import dataset_precip
@@ -8,6 +8,7 @@ import argparse
 import numpy as np
 from metric.precipitation_metrics import PrecipitationMetrics
 from utils.formatting import make_metrics_str
+
 
 class UNetBase(pl.LightningModule):
     @staticmethod
@@ -32,13 +33,13 @@ class UNetBase(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters(hparams)
         self.train_metrics = PrecipitationMetrics(
-            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+            threshold=self.hparams.threshold if hasattr(self.hparams, "threshold") else 0.5
         )
         self.val_metrics = PrecipitationMetrics(
-            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+            threshold=self.hparams.threshold if hasattr(self.hparams, "threshold") else 0.5
         )
         self.test_metrics = PrecipitationMetrics(
-            threshold=self.hparams.threshold if hasattr(self.hparams, 'threshold') else 0.5
+            threshold=self.hparams.threshold if hasattr(self.hparams, "threshold") else 0.5
         )
 
     def forward(self, x):
@@ -73,7 +74,7 @@ class UNetBase(pl.LightningModule):
 
         # Update training metrics with detached tensors
         self.train_metrics.update(y_pred.detach(), y.detach())
-        
+
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -81,7 +82,7 @@ class UNetBase(pl.LightningModule):
         y_pred = self(x)
         loss = self.loss_func(y_pred, y)
         self.log("val_loss", loss, prog_bar=True)
-        
+
         # Update validation metrics with detached tensors
         self.val_metrics.update(y_pred.detach(), y.detach())
 
@@ -92,28 +93,28 @@ class UNetBase(pl.LightningModule):
 
         # Update the test metrics
         self.test_metrics.update(y_pred.detach(), y.detach())
-    
+
     def on_test_epoch_end(self):
         """Compute and log all metrics at the end of the test epoch."""
-        test_metrics_dict = self.test_metrics.compute()
-        
+        test_metrics_dict = self.test_metrics.compute()  # ty: ignore[missing-argument]
+
         # Print all metrics in one line
         print(f"\n\nEpoch {self.current_epoch} - Test Metrics: {make_metrics_str(test_metrics_dict)}")
-        
+
         # Reset the metrics for the next test epoch
         self.test_metrics.reset()
 
     def on_train_epoch_end(self):
         """Compute and log all metrics at the end of the training epoch."""
-        train_metrics_dict = self.train_metrics.compute()
-        
+        train_metrics_dict = self.train_metrics.compute()  # ty: ignore[missing-argument]
+
         print(f"\n\nEpoch {self.current_epoch} - Train Metrics: {make_metrics_str(train_metrics_dict)}")
         self.train_metrics.reset()
 
     def on_validation_epoch_end(self):
         """Compute and log all metrics at the end of the validation epoch."""
-        val_metrics_dict = self.val_metrics.compute()
-        
+        val_metrics_dict = self.val_metrics.compute()  # ty: ignore[missing-argument]
+
         print(f"\n\nEpoch {self.current_epoch} - Validation Metrics: {make_metrics_str(val_metrics_dict)}")
         self.val_metrics.reset()
 
@@ -197,8 +198,3 @@ class PrecipRegressionBase(UNetBase):
             persistent_workers=True,
         )
         return valid_loader
-
-
-class PersistenceModel(UNetBase):
-    def forward(self, x):
-        return x[:, -1:, :, :]

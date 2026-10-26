@@ -1,4 +1,5 @@
-""" Parts of the U-Net model """
+# ty: ignore[invalid-mutable-override]
+"""Parts of the U-Net model"""
 
 # Base model taken from: https://github.com/milesial/Pytorch-UNet
 import torch

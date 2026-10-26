@@ -38,7 +38,7 @@ class SmaAt_UNet(nn.Module):
 
         self.outc = OutConv(64, self.n_classes)
 
-    def forward(self, x):
+    def forward(self, x):  # ty: ignore[invalid-mutable-override]
         x1 = self.inc(x)
         x1Att = self.cbam1(x1)
         x2 = self.down1(x1)

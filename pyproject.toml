@@ -6,21 +6,22 @@ authors = [{ name = "Kevin Trebing", email = "Kevin.Trebing@gmx.net" }]
 readme = "README.md"
 requires-python = ">=3.10.11"
 dependencies = [
-    "h5py>=3.13.0",
-    "lightning>=2.5.0.post0",
+    "h5py>=3.16.0",
+    "lightning>=2.6.6",
     "matplotlib>=3.10.0",
-    "numpy>=2.2.3",
-    "tensorboard>=2.19.0",
-    "torch>=2.6.0",
+    "numpy>=2.2.6",
+    "tensorboard>=2.21.0",
+    "torch>=2.14.0",
     "torchsummary>=1.5.1",
-    "tqdm>=4.67.1",
+    "torchvision>=0.29.1",
+    "tqdm>=4.70.1",
 ]
 
 [dependency-groups]
 dev = [
-    "mypy>=1.15.0",
-    "pre-commit>=4.1.0",
-    "ruff>=0.9.7",
+    "prek>=0.5.7",
+    "ruff>=0.17.2",
+    "ty>=0.0.92",
 ]
 scripts = [
     "ipykernel>=6.29.5",

@@ -41,7 +41,7 @@ def train_regression(hparams, find_batch_size_automatically: bool = False):
         save_top_k=1,
         verbose=False,
     )
-    
+
     lr_monitor = LearningRateMonitor()
     tb_logger = loggers.TensorBoardLogger(save_dir=default_save_path, name=net.__class__.__name__)
 

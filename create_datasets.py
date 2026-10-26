@@ -70,22 +70,22 @@ def create_dataset(input_length: int, image_ahead: int, rain_amount_thresh: floa
             ]
             for origin_id, (images, timestamps) in enumerate(origin):
                 image_dataset, timestamp_dataset = datasets[origin_id]
-                
+
                 # Pre-calculate all valid indices that meet the rain threshold
                 sequence_length = input_length + image_ahead
                 valid_indices = []
-                
+
                 # Use vectorized operations to find valid indices
                 for i in tqdm(range(sequence_length, len(images)), desc="Finding valid indices"):
                     rain_pixels = np.sum(images[i] > 0)
                     if rain_pixels >= num_pixels * rain_amount_thresh:
                         valid_indices.append(i)
-                
+
                 # Pre-allocate the final dataset size
                 total_sequences = len(valid_indices)
                 image_dataset.resize(total_sequences, axis=0)
                 timestamp_dataset.resize(total_sequences, axis=0)
-                
+
                 # Batch process the sequences
                 for idx, i in enumerate(tqdm(valid_indices, desc="Creating sequences")):
                     imgs = images[i - sequence_length : i]

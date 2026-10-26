@@ -11,7 +11,6 @@ import lightning.pytorch as pl
 import matplotlib.pyplot as plt
 
 from metric.precipitation_metrics import PrecipitationMetrics
-from models.unet_precip_regression_lightning import PersistenceModel
 from root import ROOT_DIR
 from utils import dataset_precip, model_classes
 
@@ -19,19 +18,30 @@ from utils import dataset_precip, model_classes
 def parse_args():
     parser = argparse.ArgumentParser(description="Calculate metrics for precipitation models")
 
-    parser.add_argument("--model-folder", type=str, default=None,
-                        help="Path to model folder (default: ROOT_DIR/checkpoints/comparison)")
+    parser.add_argument(
+        "--model-folder", type=str, default=None, help="Path to model folder (default: ROOT_DIR/checkpoints/comparison)"
+    )
     parser.add_argument("--threshold", type=float, default=0.5, help="Precipitation threshold)")
-    parser.add_argument("--normalized", action="store_false", dest="denormalize", default=True,
-                        help="Calculate metrics for normalized data")
-    parser.add_argument("--load-metrics", action="store_true",
-                        help="Load existing metrics instead of running experiments")
-    parser.add_argument("--file-type", type=str, default="txt", choices=["json", "txt", "csv"],
-                        help="Output file format (json, txt, or csv)")
-    parser.add_argument("--save-dir", type=str, default=None,
-                        help="Path to save the metrics")
+    parser.add_argument(
+        "--normalized",
+        action="store_false",
+        dest="denormalize",
+        default=True,
+        help="Calculate metrics for normalized data",
+    )
+    parser.add_argument(
+        "--load-metrics", action="store_true", help="Load existing metrics instead of running experiments"
+    )
+    parser.add_argument(
+        "--file-type",
+        type=str,
+        default="txt",
+        choices=["json", "txt", "csv"],
+        help="Output file format (json, txt, or csv)",
+    )
+    parser.add_argument("--save-dir", type=str, default=None, help="Path to save the metrics")
     parser.add_argument("--plot", action="store_true", help="Plot the metrics")
-    
+
     return parser.parse_args()
 
 
@@ -40,7 +50,7 @@ def convert_tensors_to_python(obj):
     if isinstance(obj, torch.Tensor):
         # Convert tensor to float/int, handling nan values
         value = obj.item() if obj.numel() == 1 else obj.tolist()
-        return float('nan') if isinstance(value, float) and np.isnan(value) else value
+        return float("nan") if isinstance(value, float) and np.isnan(value) else value
     elif isinstance(obj, dict):
         return {key: convert_tensors_to_python(value) for key, value in obj.items()}
     elif isinstance(obj, list):
@@ -51,7 +61,7 @@ def convert_tensors_to_python(obj):
 def save_metrics(results, file_path, file_type="json"):
     """
     Save metrics to a file in the specified format.
-    
+
     Args:
         results (dict): Dictionary containing model metrics
         file_path (Path): Path to save the file
@@ -92,11 +102,12 @@ def run_experiments(model_folder, data_file, threshold=0.5, denormalize=True):
     )
 
     # Create dataloader
-    test_dl = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=1, shuffle=False, pin_memory=True, persistent_workers=True)
+    test_dl = torch.utils.data.DataLoader(
+        dataset, batch_size=1, num_workers=1, shuffle=False, pin_memory=True, persistent_workers=True
+    )
 
     # Create trainer with device specification
     trainer = pl.Trainer(logger=False, enable_checkpointing=False)
-
 
     # Find all models in the model folder
     models = ["PersistenceModel"] + [f for f in os.listdir(model_folder) if f.endswith(".ckpt")]
@@ -104,15 +115,14 @@ def run_experiments(model_folder, data_file, threshold=0.5, denormalize=True):
         raise ValueError("No checkpoint files found in the model folder.")
 
     for model_file in tqdm(models, desc="Models", leave=True):
-
         model, model_name = model_classes.get_model_class(model_file)
         print(f"Loading model: {model_name}")
 
         if model_file == "PersistenceModel":
             loaded_model = model(Namespace())
         else:
-            loaded_model = model.load_from_checkpoint(os.path.join(model_folder, model_file))
-        
+            loaded_model = model.load_from_checkpoint(os.path.join(model_folder, model_file), weights_only=False)
+
         # Override the test metrics, required for testing with normalized data
         loaded_model.test_metrics = PrecipitationMetrics(threshold=threshold, denormalize=denormalize)
 
@@ -124,29 +134,29 @@ def run_experiments(model_folder, data_file, threshold=0.5, denormalize=True):
 def plot_metrics(results, save_path=""):
     """
     Plot all metrics from the results dictionary.
-    
+
     Args:
         results (dict): Dictionary containing metrics for different models
         save_path (str): Path to save the plots
     """
     model_names = list(results.keys())
     metrics = list(results[model_names[0]].keys())
-    
+
     for metric_name in metrics:
         # Get values, replacing NaN with None to skip them in the plot
         values = []
         valid_names = []
-        
+
         for model_name in model_names:
             val = results[model_name][metric_name]
             # Skip NaN values
             if not (isinstance(val, float) and np.isnan(val)):
                 values.append(val)
                 valid_names.append(model_name)
-        
+
         if len(valid_names) == 0:
             continue
-            
+
         plt.figure(figsize=(10, 6))
         plt.bar(valid_names, values)
         plt.xticks(rotation=45)
@@ -154,26 +164,26 @@ def plot_metrics(results, save_path=""):
         plt.ylabel(f"{metric_name.upper()}")
         plt.title(f"Comparison of different models - {metric_name.upper()}")
         plt.tight_layout()
-        
+
         if save_path:
             plt.savefig(f"{save_path}/{metric_name}.png")
-            
+
         plt.show()
 
-    
+
 def load_metrics_from_file(file_path, file_type):
     """
     Load metrics from a file in the specified format.
-    
+
     Args:
         file_path (Path): Path to the metrics file
         file_type (str): File format - "json", "txt", or "csv"
-        
+
     Returns:
         dict: Dictionary containing model metrics
     """
     results = {}
-    
+
     with open(file_path) as f:
         if file_type == "json" or file_type == "txt":
             # Both json and txt files are saved in JSON format in this application
@@ -195,14 +205,14 @@ def load_metrics_from_file(file_path, file_type):
                                 value = row[i]
                             model_metrics[headers[i]] = value
                     results[model_name] = model_metrics
-    
+
     return results
 
 
 def main():
     # Parse command line arguments
     args = parse_args()
-    
+
     # Variables from command line arguments
     load_metrics = args.load_metrics
     threshold = args.threshold
@@ -211,8 +221,17 @@ def main():
 
     # Define paths
     model_folder = ROOT_DIR / "checkpoints" / "comparison" if args.model_folder is None else args.model_folder
-    data_file = ROOT_DIR / "data" / "precipitation" / f"train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_{int(threshold*100)}.h5"
-    save_dir = model_folder / f"calc_metrics_test_set_results_{'denorm' if denormalize else 'norm'}" if args.save_dir is None else args.save_dir
+    data_file = (
+        ROOT_DIR
+        / "data"
+        / "precipitation"
+        / f"train_test_2016-2019_input-length_12_img-ahead_6_rain-threshold_{int(threshold * 100)}.h5"
+    )
+    save_dir = (
+        model_folder / f"calc_metrics_test_set_results_{'denorm' if denormalize else 'norm'}"
+        if args.save_dir is None
+        else args.save_dir
+    )
     os.makedirs(save_dir, exist_ok=True)
 
     file_name = f"model_metrics_{threshold}_{'denorm' if denormalize else 'norm'}.{file_type}"
@@ -224,7 +243,9 @@ def main():
         results = load_metrics_from_file(file_path, file_type)
     else:
         # Run experiments
-        print(f"Running experiments with {threshold} threshold and {'denormalized' if denormalize else 'normalized'} data")
+        print(
+            f"Running experiments with {threshold} threshold and {'denormalized' if denormalize else 'normalized'} data"
+        )
         results = run_experiments(model_folder, data_file, threshold=threshold, denormalize=denormalize)
 
         # Convert tensors to Python native types

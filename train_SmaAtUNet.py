@@ -1,5 +1,3 @@
-from typing import Optional
-
 from models.SmaAt_UNet import SmaAt_UNet
 import torch
 from torch.utils.data import DataLoader
@@ -28,7 +26,7 @@ def fit(
     train_dl,
     valid_dl,
     dev=None,
-    save_every: Optional[int] = None,
+    save_every: int | None = None,
     tensorboard: bool = False,
     earlystopping=None,
     lr_scheduler=None,

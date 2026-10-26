@@ -1,7 +1,8 @@
+# ty: ignore[unresolved-attribute]
 from models.unet_parts import Down, DoubleConv, Up, OutConv
 from models.unet_parts_depthwise_separable import DoubleConvDS, UpDS, DownDS
 from models.layers import CBAM
-from models.regression_lightning import PrecipRegressionBase, PersistenceModel
+from models.regression_lightning import PrecipRegressionBase, UNetBase
 
 
 class UNet(PrecipRegressionBase):
@@ -206,3 +207,8 @@ class UNetDSAttention4CBAMs(PrecipRegressionBase):
         x = self.up4(x, x1Att)
         logits = self.outc(x)
         return logits
+
+
+class PersistenceModel(UNetBase):
+    def forward(self, x):
+        return x[:, -1:, :, :]
