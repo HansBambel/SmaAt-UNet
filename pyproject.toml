@@ -4,11 +4,11 @@ version = "0.1.0"
 description = "Code for the paper `SmaAt-UNet: Precipitation Nowcasting using a Small Attention-UNet Architecture`"
 authors = [{ name = "Kevin Trebing", email = "Kevin.Trebing@gmx.net" }]
 readme = "README.md"
-requires-python = ">=3.10.11"
+requires-python = ">=3.12"
 dependencies = [
     "h5py>=3.16.0",
     "lightning>=2.6.6",
-    "matplotlib>=3.10.0",
+    "matplotlib>=3.11.0",
     "numpy>=2.2.6",
     "tensorboard>=2.21.0",
     "torch>=2.14.0",

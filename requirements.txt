@@ -8,35 +8,23 @@ aiohttp==3.14.5
     # via fsspec
 aiosignal==1.4.0
     # via aiohttp
-async-timeout==5.0.1 ; python_full_version < '3.11'
-    # via aiohttp
 attrs==26.1.0
     # via aiohttp
 colorama==0.4.6 ; sys_platform == 'win32'
     # via tqdm
-contourpy==1.3.2 ; python_full_version < '3.11'
-    # via matplotlib
-contourpy==1.3.3 ; python_full_version == '3.11.*'
-    # via matplotlib
-contourpy==1.4.0 ; python_full_version >= '3.12'
+contourpy==1.4.0
     # via matplotlib
 cuda-bindings==13.4.4 ; python_full_version < '3.15' and sys_platform == 'linux'
     # via torch
-cuda-pathfinder==1.8.3 ; python_full_version < '3.11' and sys_platform == 'linux'
-    # via cuda-bindings
-cuda-pathfinder==1.8.4 ; python_full_version >= '3.11' and python_full_version < '3.15' and sys_platform == 'linux'
+cuda-pathfinder==1.8.4 ; python_full_version < '3.15' and sys_platform == 'linux'
     # via cuda-bindings
 cuda-toolkit==13.0.3.0 ; sys_platform == 'linux'
     # via torch
 cycler==0.12.1
     # via matplotlib
-filelock==4.1.0 ; python_full_version < '3.11'
+filelock==4.2.4
     # via torch
-filelock==4.2.4 ; python_full_version >= '3.11'
-    # via torch
-fonttools==4.65.0 ; python_full_version < '3.11'
-    # via matplotlib
-fonttools==4.67.0 ; python_full_version >= '3.11'
+fonttools==4.67.0
     # via matplotlib
 frozenlist==1.8.0
     # via
@@ -64,53 +52,23 @@ lightning-utilities==0.15.3
     #   lightning
     #   pytorch-lightning
     #   torchmetrics
-markdown==3.10.3 ; python_full_version < '3.11'
-    # via tensorboard
-markdown==3.11.2 ; python_full_version >= '3.11'
+markdown==3.11.2
     # via tensorboard
 markupsafe==3.0.4
     # via
     #   jinja2
     #   werkzeug
-matplotlib==3.10.9 ; python_full_version < '3.11'
-    # via smaat-unet
-matplotlib==3.11.2 ; python_full_version >= '3.11'
+matplotlib==3.11.2
     # via smaat-unet
 mpmath==1.3.0
     # via sympy
-multidict==7.1.0 ; python_full_version < '3.11'
+multidict==7.2.1
     # via
     #   aiohttp
     #   yarl
-multidict==7.2.1 ; python_full_version >= '3.11'
-    # via
-    #   aiohttp
-    #   yarl
-networkx==3.4.2 ; python_full_version < '3.11'
+networkx==3.7
     # via torch
-networkx==3.6.1 ; python_full_version == '3.11.*'
-    # via torch
-networkx==3.7 ; python_full_version >= '3.12'
-    # via torch
-numpy==2.2.6 ; python_full_version < '3.11'
-    # via
-    #   contourpy
-    #   h5py
-    #   matplotlib
-    #   smaat-unet
-    #   tensorboard
-    #   torchmetrics
-    #   torchvision
-numpy==2.4.6 ; python_full_version == '3.11.*'
-    # via
-    #   contourpy
-    #   h5py
-    #   matplotlib
-    #   smaat-unet
-    #   tensorboard
-    #   torchmetrics
-    #   torchvision
-numpy==2.5.4 ; python_full_version >= '3.12'
+numpy==2.5.4
     # via
     #   contourpy
     #   h5py
@@ -168,12 +126,7 @@ packaging==26.3
     #   pytorch-lightning
     #   tensorboard
     #   torchmetrics
-pillow==12.3.0 ; python_full_version < '3.11'
-    # via
-    #   matplotlib
-    #   tensorboard
-    #   torchvision
-pillow==13.0.0 ; python_full_version >= '3.11'
+pillow==13.0.0
     # via
     #   matplotlib
     #   tensorboard
@@ -235,7 +188,6 @@ typing-extensions==4.16.0
     #   grpcio
     #   lightning
     #   lightning-utilities
-    #   multidict
     #   pytorch-lightning
     #   torch
 tzdata==2026.5
