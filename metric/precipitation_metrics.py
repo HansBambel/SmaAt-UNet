@@ -59,7 +59,7 @@ class PrecipitationMetrics(Metric):
         
         # Calculate MSE loss (normalized)
         batch_size = target.size(0)
-        loss = torch.nn.functional.mse_loss(preds, target, reduction="sum") / batch_size
+        loss = torch.nn.functional.mse_loss(preds, target, reduction="sum")
         self.total_loss += loss
         self.total_samples += batch_size  # Use batch_size instead of 1
         self.total_pixels += target.numel()
@@ -70,7 +70,7 @@ class PrecipitationMetrics(Metric):
             target_updated = target * self.factor
 
             # Calculate denormalized MSE loss
-            loss_denorm = torch.nn.functional.mse_loss(preds_updated, target_updated, reduction="sum") / batch_size
+            loss_denorm = torch.nn.functional.mse_loss(preds_updated, target_updated, reduction="sum")
             self.total_loss_denorm += loss_denorm
         else:
             preds_updated = preds
