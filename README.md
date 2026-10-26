@@ -78,6 +78,8 @@ The results will get saved in a json in the same folder as the models.
 
 The MSE that is reported in the paper is the `mse_pixel` one.
 
+Note that the calculation of the MSE has changed (in 89cac592b6df7dd358b1ac08e168763ed6d9524f) and is not dependent on the batch-size anymore. This will change the reported values of some metrics, but since this affects all compared models the key results stay the same.
+
 ### Plots
 Example code for creating similar plots as in the paper can be found in [plot_examples.ipynb](plot_examples.ipynb).
 
